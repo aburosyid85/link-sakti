@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1e3a8a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LINK-SAKTI" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" />
+  <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" />
+  <title>LINK-SAKTI - Layanan Informasi Nomor Kontak Pengguna SAKTI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    .mobile-shell {
+      max-width: 460px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f8fafc;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+    }
+    .fullscreen-shell {
+      max-width: 100% !important;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+    .glass-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
+
+  <div id="appShell" class="mobile-shell overflow-x-hidden">
+
+    <!-- ==================== VIEW 1: LOGIN SCREEN ==================== -->
+    <div id="loginView" class="flex-1 flex flex-col justify-between p-6 glass-header text-white min-h-screen relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
+      <div class="absolute top-1/3 -left-24 w-64 h-64 rounded-full bg-amber-500/10 blur-2xl pointer-events-none"></div>
+
+      <!-- Tombol Mode Layar (Hanya tampil di Desktop/Laptop & Hanya Ikon) -->
+      <div class="hidden md:flex justify-end relative z-20">
+        <button type="button" id="btnToggleModeLogin" onclick="window.toggleScreenMode()" title="Ubah Tampilan Mode Mobile / Mode Penuh" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center backdrop-blur-md transition cursor-pointer">
+          <i class="fa-solid fa-expand text-xs screen-mode-icon"></i>
+        </button>
+      </div>
+
+      <!-- Top Brand Header -->
+      <div class="pt-2 text-center relative z-10">
+        <div class="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 mx-auto flex items-center justify-center shadow-xl mb-4 p-2">
+          <img src="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" alt="Logo LINK-SAKTI" class="w-14 h-14 rounded-2xl object-cover shadow-inner" />
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-2">
+          <span>LAYANAN INFORMASI NOMOR KONTAK SAKTI</span>
+        </div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-white">LINK-SAKTI</h1>
+        <p class="text-blue-200 text-xs mt-1">Mudah Dicari • Mudah Dihubungi • Mudah Berkoordinasi</p>
+      </div>
+
+      <!-- Login Card -->
+      <div class="bg-white text-slate-800 rounded-3xl p-6 shadow-2xl my-6 relative z-10 border border-slate-100 animate-fade-in">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Masuk Aplikasi</h2>
+            <p class="text-xs text-slate-400">Gunakan akun yang terdaftar</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-100">
+            <i class="fa-solid fa-lock mr-1"></i>Login
+          </span>
+        </div>
+
+        <div id="loginForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Username / NIP</label>
+            <div class="relative">
+              <i class="fa-regular fa-user absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+              <input type="text" id="loginUsername" autocomplete="off" placeholder="Masukkan Username"
+                class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kata Sandi</label>
+            <div class="relative">
+              <i class="fa-solid fa-key absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+              <input type="password" id="loginPassword" placeholder="Masukkan Kata Sandi"
+                class="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition" />
+              <button type="button" id="btnToggleEye" onclick="window.togglePasswordVisibility()" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                <i id="eyeIcon" class="fa-regular fa-eye text-sm"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="loginErrorBox" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-500 shrink-0"></i>
+            <span id="loginErrorText">Username atau kata sandi tidak sesuai.</span>
+          </div>
+
+          <button type="button" id="btnLoginSubmit" onclick="window.handleLogin()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer">
+            <span>Masuk Aplikasi</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center text-blue-200/70 text-[11px] relative z-10">
+        <p>©aboo.aisha | v1.2.1 build 051126</p>
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 2: MAIN APPLICATION ==================== -->
+    <div id="mainAppView" class="hidden flex-1 flex flex-col min-h-screen pb-20">
+
+      <!-- App Header -->
+      <header class="glass-header text-white pt-5 pb-6 px-5 rounded-b-3xl shadow-lg sticky top-0 z-30">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <img src="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" alt="Logo LINK-SAKTI" class="w-10 h-10 rounded-2xl object-cover shadow shrink-0" />
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="font-bold text-base leading-tight">LINK-SAKTI</h1>
+                <span id="activeRoleBadge" class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-400 text-slate-950">
+                  ADMIN
+                </span>
+              </div>
+              <p id="syncStatusText" class="text-[11px] text-blue-200 flex items-center gap-1 mt-0.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                <span>Tersinkronisasi ke database</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="window.toggleScreenMode()" title="Ubah Tampilan Mode Mobile / Mode Penuh" class="hidden md:flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white transition active:scale-95 cursor-pointer">
+              <i class="fa-solid fa-expand text-xs screen-mode-icon"></i>
+            </button>
+            <button type="button" onclick="window.syncFromSpreadsheet(true)" title="Muat Ulang dari Spreadsheet" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition active:scale-95 cursor-pointer">
+              <i id="refreshIcon" class="fa-solid fa-arrows-rotate text-sm"></i>
+            </button>
+            <button type="button" onclick="window.handleLogout()" title="Keluar Aplikasi" class="w-9 h-9 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 flex items-center justify-center text-rose-200 transition active:scale-95 cursor-pointer">
+              <i class="fa-solid fa-right-from-bracket text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+          <input type="text" id="searchInput" oninput="window.renderDataList()" placeholder="Cari nama, NIP, role, satker, modul..."
+            class="w-full pl-10 pr-9 py-2.5 bg-white text-slate-800 rounded-2xl text-xs font-medium placeholder-slate-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-400" />
+          <button type="button" id="clearSearchBtn" onclick="window.clearSearch()" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Quick Stats Row -->
+      <div class="px-4 -mt-3 relative z-20">
+        <div class="bg-white rounded-2xl p-3 shadow-md border border-slate-100 grid grid-cols-3 divide-x divide-slate-100 text-center">
+          <div>
+            <p class="text-[10px] font-semibold text-slate-400 uppercase">Total Pengguna</p>
+            <p id="statTotal" class="text-lg font-extrabold text-slate-800 mt-0.5">0</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-semibold text-slate-400 uppercase">Status Aktif</p>
+            <p id="statActive" class="text-lg font-extrabold text-emerald-600 mt-0.5">0</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-semibold text-slate-400 uppercase">Level Akses</p>
+            <p id="statRoleText" class="text-xs font-bold text-blue-700 mt-1.5 truncate px-1">Admin</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content Container -->
+      <div class="flex-1 px-4 pt-3">
+
+        <!-- SUB-VIEW A: DATA LIST -->
+        <div id="subViewData">
+          <div id="filterChipsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar mb-2"></div>
+
+          <div id="userBanner" class="hidden mb-3 p-2.5 rounded-2xl bg-blue-50/80 border border-blue-100 flex items-center gap-2 text-xs text-blue-800">
+            <i class="fa-solid fa-eye text-blue-600 ml-1"></i>
+            <span class="text-[11px]">Mode <b>Pengguna (Lihat Data)</b>. Ketuk kartu pengguna untuk melihat rincian lengkap.</span>
+          </div>
+
+          <div id="dataListContainer" class="space-y-2.5 pb-6"></div>
+        </div>
+
+        <!-- SUB-VIEW A2: LIST SATKER & PENGGUNA PER SATKER -->
+        <div id="subViewSatker" class="hidden pb-6">
+          <div id="satkerMasterView">
+            <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 mb-3">
+              <div class="flex items-center justify-between mb-2.5">
+                <div>
+                  <h2 class="text-sm font-bold text-slate-800">Daftar Satuan Kerja (Satker)</h2>
+                  <p class="text-[11px] text-slate-500">Pilih Satker untuk melihat daftar pengguna terdaftar</p>
+                </div>
+                <span id="satkerTotalBadge" class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-[11px] border border-blue-100">0 Satker</span>
+              </div>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text" id="satkerSearchInput" oninput="window.renderSatkerList()" placeholder="Cari Kode Satker atau Nama Satker..."
+                  class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition" />
+              </div>
+            </div>
+            <div id="satkerListContainer" class="space-y-2"></div>
+          </div>
+
+          <div id="satkerDetailView" class="hidden">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-blue-200 mb-3">
+              <button type="button" onclick="window.closeSatkerDetailView()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs mb-3 transition cursor-pointer">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i> Kembali ke List Satker
+              </button>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span id="selectedSatkerKodeBadge" class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-mono font-extrabold text-[11px]">KODE</span>
+                  <span id="selectedSatkerCountBadge" class="text-[11px] font-bold text-blue-700">0 Pengguna</span>
+                </div>
+                <h3 id="selectedSatkerNamaTitle" class="text-sm font-bold text-slate-800 mt-1 break-words">Nama Satker</h3>
+              </div>
+            </div>
+            <div id="satkerUsersContainer" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW B: TABEL DATABASE -->
+        <div id="subViewTable" class="hidden pb-6">
+          <div id="tableSchemaBox" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h2 class="text-sm font-bold text-slate-800">Struktur Tabel Database</h2>
+                <p class="text-[11px] text-slate-500">Menampilkan seluruh kolom sesuai database</p>
+              </div>
+              <button type="button" onclick="window.exportCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+                <i class="fa-solid fa-file-csv"></i> Unduh CSV
+              </button>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1.5">Kolom Terdeteksi dari Struktur Database:</span>
+              <div id="schemaColumnsList" class="flex flex-wrap gap-1"></div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead id="fullTableHead" class="bg-slate-800 text-white uppercase text-[10px] tracking-wider"></thead>
+                <tbody id="fullTableBody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW C: PROFIL & MANAJEMEN USER (ADMIN ONLY) -->
+        <div id="subViewProfile" class="hidden space-y-3 pb-6">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 text-center">
+            <div id="profileAvatar" class="w-16 h-16 rounded-2xl bg-blue-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+              A
+            </div>
+            <h2 id="profileName" class="text-base font-bold text-slate-800">Administrator SAKTI</h2>
+            <p id="profileUsername" class="text-xs text-slate-500">@admin</p>
+            <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span id="profileRoleBadge">Level Admin (Rekam, Ubah, Hapus)</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                  <i class="fa-solid fa-users-gear text-blue-600"></i>
+                  <span>Manajemen User Login</span>
+                </h3>
+                <p class="text-[11px] text-slate-500">Terhubung ke sheet <code class="text-blue-700 font-semibold">referensi user</code></p>
+              </div>
+              <button type="button" onclick="window.openUserAccountModal()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+                <i class="fa-solid fa-user-plus text-[10px]"></i> Tambah User
+              </button>
+            </div>
+            <div id="refUsersListContainer" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Informasi Database Spreadsheet</h3>
+              <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[10px] font-bold">Terhubung</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-500">ID Spreadsheet:</span>
+                <span class="font-mono font-semibold text-slate-700 text-[11px]">1zud68vhq...P0QJ4</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Sumber Data:</span>
+                <span id="dbSourceLabel" class="font-semibold text-blue-700">Google Sheets Live</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Sheet Referensi:</span>
+                <span class="font-semibold text-slate-700">referensi satker & referensi user</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Jumlah Kolom:</span>
+                <span id="dbColCountLabel" class="font-semibold text-slate-700">0 Kolom</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <a href="https://docs.google.com/spreadsheets/d/1zud68vhqN12ts6hPIEIv9w4W3y2HOASLP4njPgP0QJ4/edit?usp=sharing" target="_blank" rel="noopener noreferrer"
+                class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+                <i class="fa-solid fa-table"></i> Buka Spreadsheet
+              </a>
+              <button type="button" onclick="window.resetLocalChanges()" class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                <i class="fa-solid fa-rotate-left"></i> Sinkron Ulang
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Floating Action Button (FAB) -->
+      <button type="button" id="fabAddBtn" onclick="window.openFormModal()" title="Rekam Data Pengguna Baru"
+        class="hidden fixed bottom-20 right-6 z-30 w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-orange-600/30 flex items-center justify-center text-xl transition transform active:scale-90 cursor-pointer">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+
+      <!-- Bottom Navigation Bar -->
+      <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2 flex items-center justify-around max-w-[460px] mx-auto" id="bottomNav">
+        <button type="button" onclick="window.switchBottomTab('data')" id="navBtnData" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-blue-700 font-bold transition cursor-pointer">
+          <i class="fa-solid fa-users-viewfinder text-base"></i>
+          <span class="text-[10px]">Data Pengguna</span>
+        </button>
+        <button type="button" onclick="window.switchBottomTab('satker')" id="navBtnSatker" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition cursor-pointer">
+          <i class="fa-solid fa-building-columns text-base"></i>
+          <span class="text-[10px]">List Satker</span>
+        </button>
+        <button type="button" onclick="window.switchBottomTab('table')" id="navBtnTable" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition cursor-pointer">
+          <i class="fa-solid fa-table-columns text-base"></i>
+          <span class="text-[10px]">Tabel Database</span>
+        </button>
+        <button type="button" onclick="window.switchBottomTab('profile')" id="navBtnProfile" class="flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition cursor-pointer">
+          <i class="fa-solid fa-user-gear text-base"></i>
+          <span class="text-[10px]">Akses & DB</span>
+        </button>
+      </nav>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== MODAL 1: DETAIL DATA PENGGUNA ==================== -->
+  <div id="detailModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-[460px] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up max-h-[88vh] flex flex-col">
+      <div class="glass-header text-white p-5 flex items-start justify-between">
+        <div class="flex items-center gap-3">
+          <div id="detailAvatar" class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 font-extrabold text-lg flex items-center justify-center shadow">
+            S
+          </div>
+          <div>
+            <span id="detailRolePill" class="px-2 py-0.5 rounded-full bg-white/15 text-amber-300 text-[10px] font-bold uppercase">
+              OPERATOR
+            </span>
+            <h3 id="detailTitleName" class="text-base font-bold text-white mt-0.5">Nama Pengguna</h3>
+            <p id="detailSubtitleNip" class="text-xs text-blue-200 font-mono">NIP: -</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeDetailModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="detailFieldsContainer" class="p-5 overflow-y-auto space-y-2.5 flex-1 bg-slate-50"></div>
+
+      <div class="p-4 bg-white border-t border-slate-200 flex items-center justify-between gap-2">
+        <button type="button" onclick="window.copyDetailText()" class="py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer">
+          <i class="fa-regular fa-copy"></i> Salin Info
+        </button>
+        <div id="detailAdminActions" class="flex items-center gap-2">
+          <button type="button" id="btnDetailEdit" class="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+            <i class="fa-solid fa-pen"></i> Ubah
+          </button>
+          <button type="button" id="btnDetailDelete" class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+            <i class="fa-solid fa-trash"></i> Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: FORM REKAM / UBAH DATA ==================== -->
+  <div id="formModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-[460px] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up max-h-[90vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 id="formModalTitle" class="text-sm font-bold">Rekam Data Pengguna Baru</h3>
+            <p class="text-[10px] text-slate-400">Sesuai struktur kolom Google Spreadsheet</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeFormModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="recordForm" class="flex-1 overflow-y-auto p-5 space-y-3.5 bg-slate-50">
+        <input type="hidden" id="formRowIndex" value="" />
+        <div id="dynamicFormFields" class="space-y-3"></div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-200">
+          <button type="button" onclick="window.closeFormModal()" class="py-2.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition cursor-pointer">
+            Batal
+          </button>
+          <button type="button" id="btnSubmitForm" onclick="window.handleSaveRecord()" class="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition cursor-pointer">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: KONFIRMASI HAPUS DATA ==================== -->
+  <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl text-center animate-fade-in">
+      <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto mb-3">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-sm font-bold text-slate-800">Hapus Data Pengguna?</h3>
+      <p id="deleteTargetName" class="text-xs text-slate-500 mt-1 mb-5">Data yang dihapus akan terhapus dari database Spreadsheet.</p>
+      <div class="flex gap-2">
+        <button type="button" onclick="window.closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition cursor-pointer">
+          Batal
+        </button>
+        <button type="button" id="confirmDeleteBtn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition cursor-pointer">
+          Ya, Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3B: TAMBAH AKUN USER LOGIN ==================== -->
+  <div id="userAccountModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-[420px] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold">Tambah User Akses Aplikasi</h3>
+            <p class="text-[10px] text-slate-400">Disimpan ke sheet <code>referensi user</code></p>
+          </div>
+        </div>
+        <button type="button" onclick="window.closeUserAccountModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="userAccountForm" class="p-5 space-y-3.5 bg-slate-50">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Username / NIP</label>
+          <input type="text" id="newAccUsername" placeholder="Contoh: 19900101... atau operator1"
+            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Kata Sandi (Password)</label>
+          <input type="text" id="newAccPassword" placeholder="Masukkan password login"
+            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Lengkap Pengguna</label>
+          <input type="text" id="newAccName" placeholder="Contoh: Budi Santoso"
+            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Level Akses</label>
+          <select id="newAccRole" class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 font-semibold">
+            <option value="pengguna">Level Pengguna (Hanya Lihat Data)</option>
+            <option value="admin">Level Admin (Rekam, Ubah, Hapus Data)</option>
+          </select>
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-200">
+          <button type="button" onclick="window.closeUserAccountModal()" class="py-2.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition cursor-pointer">
+            Batal
+          </button>
+          <button type="button" id="btnSubmitUserAcc" onclick="window.handleSaveUserAccount()" class="py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 flex items-center gap-1.5 transition cursor-pointer">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan User</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: AKSES TERBATAS KHUSUS ADMIN ==================== -->
+  <div id="adminOnlyModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center animate-fade-in border border-slate-100">
+      <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
+        <i class="fa-solid fa-user-lock"></i>
+      </div>
+      <h3 class="text-base font-extrabold text-slate-800">Akses Khusus Admin</h3>
+      <p class="text-xs text-slate-500 mt-1.5 mb-5 leading-relaxed">
+        Maaf, menu <b>Akses &amp; DB</b> hanya dapat diakses oleh pengguna dengan otoritas <b>Level Admin</b>.
+      </p>
+      <button type="button" onclick="window.closeAdminOnlyModal()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition cursor-pointer">
+        Mengerti &amp; Tutup
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: PANDUAN INSTALASI SHORTCUT HOME SCREEN ==================== -->
+  <div id="pwaInstructionModal" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2.5">
+          <img src="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" alt="Logo LINK-SAKTI" class="w-10 h-10 rounded-2xl object-cover shadow shrink-0" />
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-800">Pasang di Layar Utama</h3>
+            <p class="text-[11px] text-slate-500">Akses cepat LINK-SAKTI dari Home Screen</p>
+          </div>
+        </div>
+        <button type="button" onclick="window.closePwaInstructionModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="pwaInstructionSteps" class="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 text-xs text-slate-700 space-y-2.5 mb-4"></div>
+      <button type="button" onclick="window.closePwaInstructionModal()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer">
+        Saya Mengerti
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== POP-UP BANNER INSTALASI PWA (BAGIAN BAWAH LAYAR SMARTPHONE) ==================== -->
+  <div id="pwaInstallBanner" class="hidden fixed bottom-16 left-3 right-3 z-40 max-w-[440px] mx-auto animate-slide-up">
+    <div class="bg-slate-900/95 backdrop-blur-md text-white p-3.5 rounded-2xl shadow-2xl border border-slate-700/80 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000" alt="Logo LINK-SAKTI" class="w-11 h-11 rounded-2xl object-cover shrink-0 shadow-md" />
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <h4 class="text-xs font-extrabold text-white truncate">Install LINK-SAKTI</h4>
+            <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">PWA</span>
+          </div>
+          <p class="text-[11px] text-slate-300 leading-tight mt-0.5">Tambahkan shortcut ke Home Screen HP Anda untuk akses cepat.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" onclick="window.triggerPwaInstall()" class="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-sm transition active:scale-95 cursor-pointer">
+          Install
+        </button>
+        <button type="button" onclick="window.dismissPwaBanner()" title="Tutup" class="w-7 h-7 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center text-xs transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div id="toastContent" class="px-4 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-semibold shadow-xl flex items-center gap-2 border border-slate-700">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toastMessage">Berhasil</span>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION JAVASCRIPT ==================== -->
+  <script>
+    // Konfigurasi Supabase (Isi dengan URL & Anon Key Project Supabase Anda)
+    var SUPABASE_URL = 'https://iqmlnjeirmbqjujpqnbe.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxbWxuamVpcm1icWp1anBxbmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4ODIwNzMsImV4cCI6MjEwOTQ1ODA3M30.gLcui0p6G_RocH_jQCHdi8BnMPKMHvabQXlGO1FJZPQ';
+    var supabaseClient = (typeof supabase !== 'undefined' && SUPABASE_URL.indexOf('http') === 0)
+      ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
+    var SPREADSHEET_ID = '1zud68vhqN12ts6hPIEIv9w4W3y2HOASLP4njPgP0QJ4';
+    var STORAGE_KEY_DATA = 'sakti_app_db_v5';
+    var STORAGE_KEY_HEADERS = 'sakti_app_headers_v5';
+    var STORAGE_KEY_REFSATKER = 'sakti_app_refsatker_v5';
+    var STORAGE_KEY_REFUSERS = 'sakti_app_refusers_v5';
+    var STORAGE_KEY_STATUSLOGIN = 'sakti_app_statuslogin_v5';
+    var STORAGE_KEY_SESSION = 'sakti_app_login_session_v1';
+    var STORAGE_KEY_PWA_DISMISSED = 'sakti_app_pwa_dismissed_v1';
+
+    var currentUser = null;
+    var deferredPwaPrompt = null;
+    var dbHeaders = [];
+    var dbRows = [];
+    var refSatkerMap = {};
+    var refUsersList = [];
+    var statusLoginMap = {};
+    var activeFilter = 'SEMUA';
+    var selectedGroup = null;
+    var selectedSatkerKode = null;
+    var pendingDeleteIndex = null;
+    var isFullscreen = false;
+
+    var FALLBACK_REF_USERS = [
+      { _rowIndex: 2, username: 'admin', password: 'admin123', role: 'admin', name: 'Administrator SAKTI' },
+      { _rowIndex: 3, username: 'admin', password: 'admin053', role: 'admin', name: 'Admin KPPN' },
+      { _rowIndex: 4, username: 'pengguna', password: 'sakti123', role: 'user', name: 'Pengguna SAKTI' }
+    ];
+
+    var FALLBACK_REF_SATKER = {
+      '411892': 'Kantor Pelayanan Perbendaharaan Negara Jakarta II',
+      '527014': 'Sekretariat Direktorat Jenderal Perbendaharaan',
+      '614208': 'Kantor Wilayah DJPb Provinsi DKI Jakarta',
+      '409112': 'Direktorat Sistem Informasi dan Teknologi Perbendaharaan'
+    };
+
+    var FALLBACK_HEADERS = [
+      'No', 'NIP / NIK', 'Nama Pengguna', 'Jabatan', 'KELOMPOK PENGGUNA', 'Kode Satker', 'Email', 'No HP', 'Status'
+    ];
+
+    var FALLBACK_ROWS = [
+      {
+        _rowIndex: 2, 'No': '1', 'NIP / NIK': '198504122009011004', 'Nama Pengguna': 'Drs. Hendra Wijaya, M.Si.',
+        'Jabatan': 'Kuasa Pengguna Anggaran', 'KELOMPOK PENGGUNA': 'KPA : APPROVER_ANGGARAN : APPROVER_PEMBAYARAN',
+        'Kode Satker': '411892', 'Email': 'hendra.wijaya@kemenkeu.go.id', 'No HP': '081288901122', 'Status': 'Utama'
+      },
+      {
+        _rowIndex: 3, 'No': '2', 'NIP / NIK': '198504122009011004', 'Nama Pengguna': 'Drs. Hendra Wijaya, M.Si.',
+        'Jabatan': 'Plt. Kuasa Pengguna Anggaran', 'KELOMPOK PENGGUNA': 'KPA : VALIDATOR_KOMITMEN',
+        'Kode Satker': '614208', 'Email': 'hendra.wijaya@kemenkeu.go.id', 'No HP': '081288901122', 'Status': 'Aktif'
+      },
+      {
+        _rowIndex: 4, 'No': '3', 'NIP / NIK': '199008232014022003', 'Nama Pengguna': 'Rina Kartika Sari, S.E.',
+        'Jabatan': 'Pejabat Pembuat Komitmen', 'KELOMPOK PENGGUNA': 'PPK : VALIDATOR_KOMITMEN : VALIDATOR_PEMBAYARAN',
+        'Kode Satker': '411892', 'Email': 'rina.kartika@kemenkeu.go.id', 'No HP': '081377651234', 'Status': 'Aktif'
+      },
+      {
+        _rowIndex: 5, 'No': '4', 'NIP / NIK': '198811052010121001', 'Nama Pengguna': 'Budi Santoso, S.Kom.',
+        'Jabatan': 'Pejabat Penandatangan SPM', 'KELOMPOK PENGGUNA': 'PPSPM : APPROVER_SPM : OPERATOR_GLP',
+        'Kode Satker': '527014', 'Email': 'budi.santoso@kemenkeu.go.id', 'No HP': '085699112233', 'Status': 'Aktif'
+      }
+    ];
+
+    function isRunningInGAS() {
+      return typeof google !== 'undefined' && google.script && google.script.run;
+    }
+
+    function initSaktiApp() {
+      var uInp = document.getElementById('loginUsername');
+      var pInp = document.getElementById('loginPassword');
+      if (uInp) {
+        uInp.onkeydown = function (ev) {
+          if (ev.key === 'Enter' || ev.keyCode === 13) {
+            ev.preventDefault();
+            window.handleLogin();
+          }
+        };
+      }
+      if (pInp) {
+        pInp.onkeydown = function (ev) {
+          if (ev.key === 'Enter' || ev.keyCode === 13) {
+            ev.preventDefault();
+            window.handleLogin();
+          }
+        };
+      }
+
+      try {
+        var savedSession = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (savedSession) {
+          var parsedUser = JSON.parse(savedSession);
+          if (parsedUser && parsedUser.username) {
+            applyLoginSession(parsedUser, true);
+          }
+        }
+      } catch (e) {}
+
+      initPwaSupport();
+      window.syncFromSpreadsheet(false);
+    }
+
+    function isMobileDevice() {
+      var ua = navigator.userAgent || navigator.vendor || window.opera || '';
+      return /android|iphone|ipad|ipod|mobile/i.test(ua) || (window.innerWidth <= 768);
+    }
+
+    function initPwaSupport() {
+      var appIconUrl = 'https://drive.google.com/thumbnail?id=1j6xMsaEDzX6y9ZwxivCD_KBhpljuRDP9&sz=s4000';
+      try {
+        var manifestObj = {
+          name: 'LINK-SAKTI - Layanan Informasi Nomor Kontak Pengguna SAKTI',
+          short_name: 'LINK-SAKTI',
+          description: 'Layanan Informasi Nomor Kontak Pengguna SAKTI',
+          start_url: window.location.href,
+          display: 'standalone',
+          background_color: '#0f172a',
+          theme_color: '#1e3a8a',
+          icons: [
+            {
+              src: appIconUrl,
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: appIconUrl,
+              sizes: '512x512',
+              type: 'image/png'
+            }
+          ]
+        };
+        var manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        var manifestUrl = URL.createObjectURL(manifestBlob);
+        var linkEl = document.createElement('link');
+        linkEl.rel = 'manifest';
+        linkEl.href = manifestUrl;
+        document.head.appendChild(linkEl);
+      } catch (e) {}
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPwaPrompt = e;
+        showPwaBannerIfEligible();
+      });
+
+      setTimeout(function () {
+        showPwaBannerIfEligible();
+      }, 1200);
+    }
+
+    function showPwaBannerIfEligible() {
+      try {
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (isStandalone) return;
+        var dismissed = localStorage.getItem(STORAGE_KEY_PWA_DISMISSED);
+        if (dismissed === '1') return;
+        if (!isMobileDevice() && !deferredPwaPrompt) return;
+
+        var banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.classList.remove('hidden');
+      } catch (e) {}
+    }
+
+    window.dismissPwaBanner = function () {
+      var banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.classList.add('hidden');
+      try {
+        localStorage.setItem(STORAGE_KEY_PWA_DISMISSED, '1');
+      } catch (e) {}
+    };
+
+    window.triggerPwaInstall = function () {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(function (choiceResult) {
+          if (choiceResult.outcome === 'accepted') {
+            window.dismissPwaBanner();
+            showToast('Shortcut Aplikasi SAKTI berhasil ditambahkan!');
+          }
+          deferredPwaPrompt = null;
+        });
+        return;
+      }
+
+      var ua = (navigator.userAgent || '').toLowerCase();
+      var isIos = /iphone|ipad|ipod/.test(ua);
+      var stepsBox = document.getElementById('pwaInstructionSteps');
+      if (stepsBox) {
+        if (isIos) {
+          stepsBox.innerHTML =
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span><span>Ketuk ikon <b>Bagikan (Share)</b> <i class="fa-solid fa-arrow-up-from-bracket text-blue-600 mx-0.5"></i> di bar bagian bawah Safari.</span></div>' +
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span><span>Geser ke bawah dan pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b> <i class="fa-regular fa-square-plus text-slate-700 mx-0.5"></i>.</span></div>' +
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span><span>Ketuk <b>Tambah (Add)</b> di pojok kanan atas layar.</span></div>';
+        } else {
+          stepsBox.innerHTML =
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span><span>Ketuk ikon <b>Menu Tiga Titik</b> <i class="fa-solid fa-ellipsis-vertical text-blue-600 mx-1"></i> di pojok kanan atas browser Chrome/HP Anda.</span></div>' +
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span><span>Pilih menu <b>"Tambahkan ke layar utama" (Add to Home screen)</b> atau <b>"Instal aplikasi"</b>.</span></div>' +
+            '<div class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span><span>Konfirmasi dengan menekan tombol <b>Tambahkan / Instal</b>.</span></div>';
+        }
+      }
+      var modal = document.getElementById('pwaInstructionModal');
+      if (modal) modal.classList.remove('hidden');
+      window.dismissPwaBanner();
+    };
+
+    window.closePwaInstructionModal = function () {
+      var modal = document.getElementById('pwaInstructionModal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.closeAdminOnlyModal = function () {
+      var modal = document.getElementById('adminOnlyModal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSaktiApp);
+    } else {
+      initSaktiApp();
+    }
+
+    window.syncFromSpreadsheet = function (showNotification) {
+      var refreshIcon = document.getElementById('refreshIcon');
+      if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+      // 1. JIKA SUDAH TERHUBUNG KE SUPABASE (DI VERCEL)
+      if (supabaseClient) {
+        Promise.all([
+          supabaseClient.from('app_config').select('*').eq('key', 'main_headers').maybeSingle(),
+          supabaseClient.from('pengguna').select('*').order('id', { ascending: true }),
+          supabaseClient.from('referensi_satker').select('*'),
+          supabaseClient.from('referensi_user').select('*').order('id', { ascending: true }),
+          supabaseClient.from('status_login').select('*')
+        ]).then(function (results) {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          var cfgRes = results[0].data;
+          var penggunaRes = results[1].data || [];
+          var satkerRes = results[2].data || [];
+          var userRes = results[3].data || [];
+          var loginRes = results[4].data || [];
+
+          // Bangun dbRows & dbHeaders
+          dbRows = penggunaRes.map(function (item) {
+            var obj = Object.assign({}, item.data || {});
+            obj._rowIndex = item.id;
+            return obj;
+          });
+          if (cfgRes && cfgRes.headers && cfgRes.headers.length > 0) {
+            dbHeaders = cfgRes.headers;
+          } else if (dbRows.length > 0) {
+            dbHeaders = Object.keys(dbRows[0]).filter(function (k) { return k !== '_rowIndex'; });
+          } else {
+            dbHeaders = FALLBACK_HEADERS.slice();
+          }
+
+          // Bangun refSatkerMap
+          refSatkerMap = {};
+          satkerRes.forEach(function (s) {
+            var kd = String(s.kode_satker || '').trim();
+            var nm = String(s.nama_satker || '').trim();
+            if (kd) {
+              refSatkerMap[kd] = nm;
+              refSatkerMap[kd.replace(/^0+/, '')] = nm;
+            }
+          });
+
+          // Bangun refUsersList
+          refUsersList = userRes.map(function (u) {
+            var rl = String(u.level || 'pengguna').toLowerCase();
+            return {
+              _rowIndex: u.id,
+              username: u.username,
+              password: u.password,
+              role: rl.indexOf('admin') !== -1 ? 'admin' : 'user',
+              name: u.nama_lengkap || u.username
+            };
+          });
+
+          // Bangun statusLoginMap
+          statusLoginMap = {};
+          loginRes.forEach(function (l) {
+            var rawSatker = String(l.nama_satker || '').trim();
+            var m = rawSatker.match(/\b(\d{6})\b/) || rawSatker.match(/^(\d+)/);
+            var kd = m ? m[1] : rawSatker;
+            var cleanName = String(l.nama || '').trim().replace(/\s+/g, ' ').toUpperCase();
+            var rawLogin = String(l.login_terakhir || '').trim();
+            if (!kd || !cleanName) return;
+            var keys = [kd + '__' + cleanName, kd.replace(/^0+/, '') + '__' + cleanName];
+            var newTs = parseLoginDateMs(rawLogin);
+            keys.forEach(function (k) {
+              if (!statusLoginMap[k] || newTs > parseLoginDateMs(statusLoginMap[k])) {
+                statusLoginMap[k] = rawLogin || '-';
+              }
+            });
+          });
+
+          saveToLocalCache();
+          updateDatabaseUI('Mudah Dicari • Mudah Dihubungi');
+          if (showNotification) showToast('Tersinkronisasi dengan Supabase!');
+        }).catch(function (err) {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          showToast('Gagal memuat dari Supabase: ' + err.message, true);
+        });
+        return;
+      }
+
+      if (isRunningInGAS()) {
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            if (res && res.headers && res.headers.length > 0) {
+              dbHeaders = res.headers;
+              dbRows = res.rows || [];
+              refSatkerMap = res.refSatker || {};
+              refUsersList = (res.refUsers && res.refUsers.length > 0) ? res.refUsers : FALLBACK_REF_USERS.slice();
+              statusLoginMap = res.statusLoginMap || {};
+              updateDatabaseUI('Mudah Dicari • Mudah Dihubungi');
+              if (showNotification) showToast('Data & Referensi berhasil disinkronkan!');
+            } else {
+              loadFallbackData(false);
+            }
+          })
+          .withFailureHandler(function (err) {
+            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            showToast('Gagal memuat dari GAS: ' + (err && err.message ? err.message : err), true);
+          })
+          .getDatabaseData();
+        return;
+      }
+
+      Promise.all([
+        fetchSheetViaJSONP(SPREADSHEET_ID, ''),
+        fetchRefSatkerViaJSONP(SPREADSHEET_ID),
+        fetchRefUsersViaJSONP(SPREADSHEET_ID),
+        fetchStatusLoginViaJSONP(SPREADSHEET_ID)
+      ])
+        .then(function (results) {
+          var parsedMain = results[0];
+          var parsedRef = results[1] || {};
+          var parsedUsers = results[2] || [];
+          var parsedLogin = results[3] || {};
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          if (parsedMain && parsedMain.headers.length > 0) {
+            dbHeaders = parsedMain.headers;
+            dbRows = parsedMain.rows;
+            refSatkerMap = Object.keys(parsedRef).length > 0 ? parsedRef : FALLBACK_REF_SATKER;
+            refUsersList = parsedUsers.length > 0 ? parsedUsers : FALLBACK_REF_USERS.slice();
+            statusLoginMap = parsedLogin;
+            saveToLocalCache();
+            updateDatabaseUI('Mudah Dicari • Mudah Dihubungi');
+            if (showNotification) showToast('Berhasil memuat data dari Spreadsheet!');
+          } else {
+            loadFallbackData(showNotification);
+          }
+        })
+        .catch(function () {
+          if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+          loadFallbackData(showNotification);
+        });
+    };
+
+    function fetchSheetViaJSONP(sheetId, sheetName) {
+      return new Promise(function (resolve, reject) {
+        var callbackName = 'gvizCb_' + Math.floor(Math.random() * 1000000);
+        var script = document.createElement('script');
+        var timer = setTimeout(function () {
+          cleanup();
+          reject(new Error('Timeout'));
+        }, 5500);
+
+        function cleanup() {
+          clearTimeout(timer);
+          try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[callbackName] = function (response) {
+          cleanup();
+          try {
+            if (!response || !response.table || !response.table.cols) {
+              return reject(new Error('Invalid table'));
+            }
+            var rawCols = response.table.cols || [];
+            var headers = rawCols.map(function (c) { return (c.label || '').trim(); }).filter(function (l) { return l !== ''; });
+            var rawRows = response.table.rows || [];
+            var startRowIdx = 0;
+
+            if (headers.length === 0 && rawRows.length > 0) {
+              headers = (rawRows[0].c || []).map(function (cell, idx) {
+                return cell && cell.v !== null && cell.v !== undefined ? String(cell.f || cell.v).trim() : 'Kolom_' + (idx + 1);
+              });
+              startRowIdx = 1;
+            }
+
+            var rows = [];
+            for (var i = startRowIdx; i < rawRows.length; i++) {
+              var cells = rawRows[i].c || [];
+              var rowObj = { _rowIndex: i + 2 };
+              var nonEmptyCount = 0;
+              headers.forEach(function (h, colIdx) {
+                var cell = cells[colIdx];
+                var val = cell ? (cell.f !== undefined && cell.f !== null ? String(cell.f) : (cell.v !== null && cell.v !== undefined ? String(cell.v) : '')) : '';
+                if (val.trim() !== '') nonEmptyCount++;
+                rowObj[h] = val;
+              });
+              if (nonEmptyCount > 0) rows.push(rowObj);
+            }
+            resolve({ headers: headers, rows: rows });
+          } catch (err) {
+            reject(err);
+          }
+        };
+
+        script.onerror = function () {
+          cleanup();
+          reject(new Error('Script load error'));
+        };
+
+        var sheetParam = sheetName ? '&sheet=' + encodeURIComponent(sheetName) : '';
+        script.src = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/gviz/tq?headers=1&tqx=out:json;responseHandler:' + callbackName + sheetParam;
+        document.body.appendChild(script);
+      });
+    }
+
+    function fetchRefSatkerViaJSONP(sheetId) {
+      return fetchSheetViaJSONP(sheetId, 'referensi satker')
+        .then(function (res) {
+          var map = {};
+          if (!res || !res.headers || !res.rows) return map;
+          var lowerH = res.headers.map(function (h) { return h.toLowerCase(); });
+          var kdIdx = lowerH.findIndex(function (h) { return h.indexOf('kode') !== -1 || h.indexOf('kd') !== -1; });
+          var nmIdx = lowerH.findIndex(function (h) { return h.indexOf('nama') !== -1 || h.indexOf('nm') !== -1 || h.indexOf('uraian') !== -1; });
+          var kodeCol = res.headers[kdIdx !== -1 ? kdIdx : 0];
+          var namaCol = res.headers[nmIdx !== -1 ? nmIdx : (res.headers.length > 1 ? 1 : 0)];
+
+          res.rows.forEach(function (r) {
+            var kd = String(r[kodeCol] || '').trim();
+            var nm = String(r[namaCol] || '').trim();
+            if (kd && nm) {
+              map[kd] = nm;
+              map[kd.replace(/^0+/, '')] = nm;
+            }
+          });
+          return map;
+        })
+        .catch(function () { return {}; });
+    }
+
+    function fetchRefUsersViaJSONP(sheetId) {
+      return fetchSheetViaJSONP(sheetId, 'referensi user')
+        .then(function (res) {
+          if (!res || !res.headers) return [];
+          var list = [];
+          if (res.rows.length === 0 && res.headers.length >= 2) {
+            var uMatch = res.headers[0].replace(/^username\s*/i, '').trim();
+            var pMatch = res.headers[1].replace(/^password\s*/i, '').trim();
+            var rMatch = (res.headers[2] || '').replace(/^level\s*/i, '').trim().toLowerCase();
+            var nMatch = (res.headers[3] || '').replace(/^nama\s*lengkap\s*/i, '').trim();
+            if (uMatch && pMatch && uMatch.toLowerCase() !== 'username') {
+              list.push({
+                _rowIndex: 2,
+                username: uMatch,
+                password: pMatch,
+                role: rMatch.indexOf('admin') !== -1 ? 'admin' : 'user',
+                name: nMatch || uMatch
+              });
+            }
+          }
+          if (res.rows && res.rows.length > 0) {
+            var lowerH = res.headers.map(function (h) { return h.toLowerCase(); });
+            var uIdx = lowerH.findIndex(function (h) { return h.indexOf('user') !== -1 || h.indexOf('nip') !== -1; });
+            var pIdx = lowerH.findIndex(function (h) { return h.indexOf('pass') !== -1 || h.indexOf('sandi') !== -1; });
+            var rIdx = lowerH.findIndex(function (h) { return h.indexOf('level') !== -1 || h.indexOf('role') !== -1; });
+            var nIdx = lowerH.findIndex(function (h) { return h.indexOf('nama') !== -1; });
+
+            var userCol = res.headers[uIdx !== -1 ? uIdx : 0];
+            var passCol = res.headers[pIdx !== -1 ? pIdx : 1];
+            var roleCol = res.headers[rIdx !== -1 ? rIdx : 2];
+            var nameCol = res.headers[nIdx !== -1 ? nIdx : 3] || userCol;
+
+            res.rows.forEach(function (r, idx) {
+              var u = String(r[userCol] || '').trim();
+              var p = String(r[passCol] || '').trim();
+              var rawRole = String(r[roleCol] || 'pengguna').trim().toLowerCase();
+              var nm = String(r[nameCol] || u).trim();
+              if (u && u.toLowerCase() !== 'username') {
+                list.push({
+                  _rowIndex: r._rowIndex || (idx + 2),
+                  username: u,
+                  password: p,
+                  role: rawRole.indexOf('admin') !== -1 ? 'admin' : 'user',
+                  name: nm
+                });
+              }
+            });
+          }
+          return list;
+        })
+        .catch(function () { return []; });
+    }
+
+    function fetchStatusLoginViaJSONP(sheetId) {
+      return fetchSheetViaJSONP(sheetId, 'status login')
+        .then(function (res) {
+          var map = {};
+          if (!res || !res.headers || !res.rows) return map;
+          var lowerH = res.headers.map(function (h) { return h.toLowerCase(); });
+          var sIdx = lowerH.findIndex(function (h) { return h.indexOf('nama satker') !== -1 || h.indexOf('satker') !== -1; });
+          var nIdx = lowerH.findIndex(function (h) { return h === 'nama' || (h.indexOf('nama') !== -1 && h.indexOf('satker') === -1); });
+          var lIdx = lowerH.findIndex(function (h) { return h.indexOf('login terakhir') !== -1 || h.indexOf('login') !== -1; });
+
+          var satkerCol = res.headers[sIdx !== -1 ? sIdx : 3];
+          var namaCol = res.headers[nIdx !== -1 ? nIdx : 4];
+          var loginCol = res.headers[lIdx !== -1 ? lIdx : (res.headers.length - 1)];
+
+          res.rows.forEach(function (r) {
+            var rawSatker = String(r[satkerCol] || '').trim();
+            var rawNama = String(r[namaCol] || '').trim();
+            var rawLogin = String(r[loginCol] || '').trim();
+            if (!rawNama) return;
+
+            var m = rawSatker.match(/\b(\d{6})\b/) || rawSatker.match(/^(\d+)/);
+            var kd = m ? m[1] : rawSatker;
+            var cleanName = rawNama.replace(/\s+/g, ' ').toUpperCase();
+            if (!kd) return;
+
+            var keys = [kd + '__' + cleanName, kd.replace(/^0+/, '') + '__' + cleanName];
+            var newTs = parseLoginDateMs(rawLogin);
+            keys.forEach(function (k) {
+              var existing = map[k];
+              if (!existing) {
+                map[k] = rawLogin || '-';
+              } else {
+                var oldTs = parseLoginDateMs(existing);
+                if (newTs > oldTs) map[k] = rawLogin;
+              }
+            });
+          });
+          return map;
+        })
+        .catch(function () { return {}; });
+    }
+
+    function parseLoginDateMs(str) {
+      var s = String(str || '').trim();
+      if (!s || s === '-') return 0;
+      var d = new Date(s.replace(' ', 'T'));
+      if (!isNaN(d.getTime())) return d.getTime();
+      var d2 = new Date(s);
+      return isNaN(d2.getTime()) ? 0 : d2.getTime();
+    }
+
+    function getUserSatkerLastLogin(kodeSatker, userName) {
+      var kd = String(kodeSatker || '').trim();
+      var nm = String(userName || '').trim().replace(/\s+/g, ' ').toUpperCase();
+      if (!kd || !nm) return '';
+      var k1 = kd + '__' + nm;
+      var k2 = kd.replace(/^0+/, '') + '__' + nm;
+      if (statusLoginMap[k1] !== undefined) return statusLoginMap[k1];
+      if (statusLoginMap[k2] !== undefined) return statusLoginMap[k2];
+      return '';
+    }
+
+    function computeEffectiveStatusByLogin(rawStatus, lastLoginStr) {
+      var st = String(rawStatus || 'Aktif').trim();
+      var lowerSt = st.toLowerCase();
+      if (lowerSt.indexOf('non') !== -1 || lowerSt.indexOf('tidak') !== -1 || lowerSt.indexOf('blokir') !== -1) {
+        return st;
+      }
+      if (!lastLoginStr) return st;
+      if (String(lastLoginStr).trim() === '-') {
+        return 'NONAKTIF';
+      }
+      var ts = parseLoginDateMs(lastLoginStr);
+      if (ts > 0) {
+        var diffDays = (Date.now() - ts) / (1000 * 60 * 60 * 24);
+        if (diffDays > 90) {
+          return 'NONAKTIF';
+        }
+      }
+      return st;
+    }
+
+    function loadFallbackData(showNotification) {
+      dbHeaders = FALLBACK_HEADERS.slice();
+      dbRows = JSON.parse(JSON.stringify(FALLBACK_ROWS));
+      refSatkerMap = JSON.parse(JSON.stringify(FALLBACK_REF_SATKER));
+      if (!refUsersList || refUsersList.length === 0) {
+        refUsersList = JSON.parse(JSON.stringify(FALLBACK_REF_USERS));
+      }
+      saveToLocalCache();
+      updateDatabaseUI('Mudah Dicari • Mudah Dihubungi');
+      if (showNotification) showToast('Data berhasil dimuat ulang');
+    }
+
+    function saveToLocalCache() {
+      try {
+        localStorage.setItem(STORAGE_KEY_HEADERS, JSON.stringify(dbHeaders));
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(dbRows));
+        localStorage.setItem(STORAGE_KEY_REFSATKER, JSON.stringify(refSatkerMap));
+        localStorage.setItem(STORAGE_KEY_REFUSERS, JSON.stringify(refUsersList));
+        localStorage.setItem(STORAGE_KEY_STATUSLOGIN, JSON.stringify(statusLoginMap));
+      } catch (e) {}
+    }
+
+    window.resetLocalChanges = function () {
+      try {
+        localStorage.removeItem(STORAGE_KEY_HEADERS);
+        localStorage.removeItem(STORAGE_KEY_DATA);
+        localStorage.removeItem(STORAGE_KEY_REFSATKER);
+        localStorage.removeItem(STORAGE_KEY_REFUSERS);
+        localStorage.removeItem(STORAGE_KEY_STATUSLOGIN);
+      } catch (e) {}
+      window.syncFromSpreadsheet(true);
+    };
+
+    window.togglePasswordVisibility = function () {
+      var passInp = document.getElementById('loginPassword');
+      var eyeIcon = document.getElementById('eyeIcon');
+      if (!passInp || !eyeIcon) return;
+      if (passInp.type === 'password') {
+        passInp.type = 'text';
+        eyeIcon.className = 'fa-regular fa-eye-slash text-sm';
+      } else {
+        passInp.type = 'password';
+        eyeIcon.className = 'fa-regular fa-eye text-sm';
+      }
+    };
+
+    function showLoginError(msg) {
+      var box = document.getElementById('loginErrorBox');
+      var txt = document.getElementById('loginErrorText');
+      if (box && txt) {
+        if (!msg) {
+          box.classList.add('hidden');
+        } else {
+          txt.textContent = msg;
+          box.classList.remove('hidden');
+        }
+      }
+      if (msg) showToast(msg, true);
+    }
+
+    window.handleLogin = function () {
+      showLoginError('');
+      var usernameInput = document.getElementById('loginUsername');
+      var passwordInput = document.getElementById('loginPassword');
+      var username = (usernameInput ? usernameInput.value : '').trim();
+      var password = (passwordInput ? passwordInput.value : '').trim();
+
+      if (!username || !password) {
+        showLoginError('Harap isi Username dan Kata Sandi terlebih dahulu.');
+        return;
+      }
+
+      if (isRunningInGAS()) {
+        var btn = document.getElementById('btnLoginSubmit');
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
+        }
+        google.script.run
+          .withSuccessHandler(function (res) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<span>Masuk Aplikasi</span><i class="fa-solid fa-arrow-right"></i>';
+            }
+            if (res && res.success) {
+              applyLoginSession({
+                username: res.username || username,
+                role: res.role || 'user',
+                name: res.name || username
+              });
+            } else {
+              var uLower = username.toLowerCase();
+              var combined = (refUsersList || []).concat(FALLBACK_REF_USERS);
+              var localMatch = combined.find(function (acc) {
+                return String(acc.username || '').trim().toLowerCase() === uLower && String(acc.password || '').trim() === password;
+              });
+              if (localMatch) {
+                applyLoginSession({
+                  username: localMatch.username,
+                  role: localMatch.role,
+                  name: localMatch.name || localMatch.username
+                });
+              } else {
+                showLoginError((res && res.message) || 'Username atau kata sandi tidak sesuai!');
+              }
+            }
+          })
+          .withFailureHandler(function (err) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<span>Masuk Aplikasi</span><i class="fa-solid fa-arrow-right"></i>';
+            }
+            showLoginError('Gagal menghubungi server GAS: ' + (err && err.message ? err.message : err));
+          })
+          .authenticateUser(username, password);
+        return;
+      }
+
+      var u = username.toLowerCase();
+      var combinedUsers = (refUsersList || []).concat(FALLBACK_REF_USERS);
+      var found = combinedUsers.find(function (acc) {
+        return String(acc.username || '').trim().toLowerCase() === u && String(acc.password || '').trim() === password;
+      });
+
+      if (found) {
+        applyLoginSession({ username: found.username, role: found.role, name: found.name || found.username });
+      } else {
+        showLoginError('Username atau Kata Sandi tidak sesuai!');
+      }
+    };
+
+    function applyLoginSession(userObj, isSilentRestore) {
+      if (!userObj) return;
+      var safeName = String(userObj.name || userObj.username || 'Pengguna').trim();
+      var safeUsername = String(userObj.username || 'user').trim();
+      var isAdmin = String(userObj.role || '').toLowerCase().indexOf('admin') !== -1;
+
+      currentUser = {
+        username: safeUsername,
+        role: isAdmin ? 'admin' : 'user',
+        name: safeName
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(currentUser));
+      } catch (e) {}
+
+      document.getElementById('loginView').classList.add('hidden');
+      document.getElementById('mainAppView').classList.remove('hidden');
+
+      var roleBadge = document.getElementById('activeRoleBadge');
+      if (roleBadge) {
+        roleBadge.textContent = isAdmin ? 'ADMIN' : 'PENGGUNA';
+        roleBadge.className = isAdmin
+          ? 'px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-400 text-slate-950'
+          : 'px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-400/30 text-blue-100 border border-blue-300/30';
+      }
+
+      document.getElementById('statRoleText').textContent = isAdmin ? 'Admin (CRUD)' : 'View Data';
+      document.getElementById('userBanner').classList.toggle('hidden', isAdmin);
+      document.getElementById('fabAddBtn').classList.toggle('hidden', !isAdmin);
+
+      var tableSchemaBox = document.getElementById('tableSchemaBox');
+      if (tableSchemaBox) {
+        tableSchemaBox.classList.toggle('hidden', !isAdmin);
+      }
+
+      var navBtnTable = document.getElementById('navBtnTable');
+      var navBtnProfile = document.getElementById('navBtnProfile');
+      if (navBtnTable) navBtnTable.classList.remove('hidden');
+      if (navBtnProfile) navBtnProfile.classList.remove('hidden');
+
+      if (!isAdmin) {
+        window.switchBottomTab('data');
+      }
+
+      document.getElementById('profileAvatar').textContent = (safeName.charAt(0) || 'U').toUpperCase();
+      document.getElementById('profileName').textContent = safeName;
+      document.getElementById('profileUsername').textContent = '@' + safeUsername;
+      document.getElementById('profileRoleBadge').textContent = isAdmin
+        ? 'Level Admin (Rekam, Ubah, Hapus)'
+        : 'Level Pengguna (Hanya Lihat Data)';
+
+      window.renderDataList();
+      window.renderSatkerList();
+      renderFullTable();
+      renderRefUsersList();
+      if (!isSilentRestore) {
+        showToast('Selamat datang, ' + safeName + '!');
+      }
+    }
+
+    window.handleLogout = function () {
+      currentUser = null;
+      try {
+        localStorage.removeItem(STORAGE_KEY_SESSION);
+      } catch (e) {}
+      var passInp = document.getElementById('loginPassword');
+      if (passInp) passInp.value = '';
+      document.getElementById('mainAppView').classList.add('hidden');
+      document.getElementById('loginView').classList.remove('hidden');
+      showToast('Anda telah keluar dari aplikasi.');
+    };
+
+    function renderRefUsersList() {
+      var container = document.getElementById('refUsersListContainer');
+      if (!container) return;
+      var list = (refUsersList && refUsersList.length > 0) ? refUsersList : FALLBACK_REF_USERS;
+      container.innerHTML = list.map(function (u, idx) {
+        var isAdm = u.role === 'admin';
+        return '<div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-2.5 min-w-0">' +
+            '<div class="w-8 h-8 rounded-xl ' + (isAdm ? 'bg-amber-500 text-slate-950' : 'bg-blue-600 text-white') + ' font-bold text-xs flex items-center justify-center shrink-0">' +
+              '<i class="fa-solid ' + (isAdm ? 'fa-user-shield' : 'fa-user') + '"></i>' +
+            '</div>' +
+            '<div class="min-w-0">' +
+              '<div class="flex items-center gap-1.5">' +
+                '<span class="text-xs font-bold text-slate-800 truncate">' + escapeHtml(u.name || u.username) + '</span>' +
+                '<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase ' + (isAdm ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-800') + '">' +
+                  (isAdm ? 'Admin' : 'Pengguna') +
+                '</span>' +
+              '</div>' +
+              '<p class="text-[11px] text-slate-500 font-mono truncate">User: <b>' + escapeHtml(u.username) + '</b> &bull; Pass: <span class="text-slate-400">' + escapeHtml(u.password) + '</span></p>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" onclick="window.handleDeleteUserAccount(' + (u._rowIndex || (idx + 2)) + ', \'' + escapeHtml(u.username) + '\')" title="Hapus User" class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs shrink-0 transition cursor-pointer">' +
+            '<i class="fa-solid fa-trash-can"></i>' +
+          '</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    window.openUserAccountModal = function () {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      document.getElementById('newAccUsername').value = '';
+      document.getElementById('newAccPassword').value = '';
+      document.getElementById('newAccName').value = '';
+      document.getElementById('newAccRole').value = 'pengguna';
+      document.getElementById('userAccountModal').classList.remove('hidden');
+    };
+
+    window.closeUserAccountModal = function () {
+      document.getElementById('userAccountModal').classList.add('hidden');
+    };
+
+    window.handleSaveUserAccount = function () {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      var u = document.getElementById('newAccUsername').value.trim();
+      var p = document.getElementById('newAccPassword').value.trim();
+      var n = document.getElementById('newAccName').value.trim();
+      var r = document.getElementById('newAccRole').value;
+      if (!u || !p) {
+        showToast('Username dan Password wajib diisi!', true);
+        return;
+      }
+
+      var newAccObj = {
+        username: u,
+        password: p,
+        role: r === 'admin' ? 'admin' : 'user',
+        name: n || u
+      };
+
+      if (supabaseClient) {
+        var btnSupa = document.getElementById('btnSubmitUserAcc');
+        btnSupa.disabled = true;
+        btnSupa.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+        supabaseClient.from('referensi_user').insert([{
+          username: newAccObj.username,
+          password: newAccObj.password,
+          level: r,
+          nama_lengkap: newAccObj.name
+        }]).then(function (res) {
+          btnSupa.disabled = false;
+          btnSupa.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan User';
+          if (res.error) {
+            showToast('Gagal: ' + res.error.message, true);
+            return;
+          }
+          window.closeUserAccountModal();
+          window.syncFromSpreadsheet(false);
+          showToast('User "' + u + '" berhasil ditambahkan!');
+        });
+        return;
+      }
+
+      if (isRunningInGAS()) {
+        var btn = document.getElementById('btnSubmitUserAcc');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+        google.script.run
+          .withSuccessHandler(function (updatedUsers) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan User';
+            refUsersList = updatedUsers || [];
+            window.closeUserAccountModal();
+            renderRefUsersList();
+            showToast('User "' + u + '" berhasil ditambahkan!');
+          })
+          .withFailureHandler(function (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan User';
+            showToast('Gagal menyimpan user: ' + err.message, true);
+          })
+          .addRefUserGAS(newAccObj, currentUser.role);
+        return;
+      }
+
+      var maxRow = refUsersList.reduce(function (m, item) { return Math.max(m, item._rowIndex || 2); }, 2);
+      newAccObj._rowIndex = maxRow + 1;
+      refUsersList.push(newAccObj);
+      saveToLocalCache();
+      window.closeUserAccountModal();
+      renderRefUsersList();
+      showToast('User "' + u + '" berhasil ditambahkan!');
+    };
+
+    window.handleDeleteUserAccount = function (rowIndex, username) {
+      if (!currentUser || currentUser.role !== 'admin') return;
+      if (refUsersList.length <= 1) {
+        showToast('Minimal harus tersisa 1 akun user aktif!', true);
+        return;
+      }
+      if (supabaseClient) {
+        supabaseClient.from('referensi_user').delete().eq('id', Number(rowIndex)).then(function () {
+          window.syncFromSpreadsheet(false);
+          showToast('User "' + username + '" berhasil dihapus.');
+        });
+        return;
+      }
+      if (isRunningInGAS()) {
+        google.script.run
+          .withSuccessHandler(function (updatedUsers) {
+            refUsersList = updatedUsers || [];
+            renderRefUsersList();
+            showToast('User "' + username + '" berhasil dihapus.');
+          })
+          .withFailureHandler(function (err) {
+            showToast('Gagal menghapus user: ' + err.message, true);
+          })
+          .deleteRefUserGAS(rowIndex, currentUser.role);
+        return;
+      }
+      refUsersList = refUsersList.filter(function (item) { return item._rowIndex !== rowIndex && item.username !== username; });
+      saveToLocalCache();
+      renderRefUsersList();
+      showToast('User "' + username + '" telah dihapus.');
+    };
+
+    function getNamaSatker(kodeSatker, rowObj, colMap) {
+      var cleanKode = String(kodeSatker || '').trim();
+      if (cleanKode && refSatkerMap[cleanKode]) return refSatkerMap[cleanKode];
+      var strippedKode = cleanKode.replace(/^0+/, '');
+      if (strippedKode && refSatkerMap[strippedKode]) return refSatkerMap[strippedKode];
+      if (rowObj && colMap && colMap.namaSatkerCol && rowObj[colMap.namaSatkerCol]) {
+        return String(rowObj[colMap.namaSatkerCol]).trim();
+      }
+      return '';
+    }
+
+    function splitKelompokPengguna(rawVal) {
+      if (!rawVal) return [];
+      return String(rawVal).split(':').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+    }
+
+    // Sensor / Masking NIK untuk Level Pengguna (Tampilkan 4 digit awal & 4 digit akhir: 7201********0001)
+    function isNikColumnName(colName) {
+      var c = String(colName || '').trim().toLowerCase();
+      return c === 'nik' || c.indexOf('nik ') !== -1 || c.indexOf(' nik') !== -1 || c.indexOf('/nik') !== -1 || c.indexOf('nik/') !== -1 || c.indexOf('no. nik') !== -1 || c.indexOf('nomor induk kependudukan') !== -1;
+    }
+
+    function maskNikString(rawVal) {
+      var s = String(rawVal !== undefined && rawVal !== null ? rawVal : '').trim();
+      if (!s || s === '-') return s;
+      if (s.length <= 8) return s;
+      var first4 = s.substring(0, 4);
+      var last4 = s.substring(s.length - 4);
+      var stars = new Array(s.length - 8 + 1).join('*');
+      return first4 + stars + last4;
+    }
+
+    function formatDisplayCellValue(colName, rawVal) {
+      var valStr = String(rawVal !== undefined && rawVal !== null ? rawVal : '').trim();
+      var isAdmin = currentUser && currentUser.role === 'admin';
+      if (!isAdmin && isNikColumnName(colName)) {
+        return valStr.split('|').map(function (part) {
+          return maskNikString(part.trim());
+        }).join(' | ');
+      }
+      return valStr;
+    }
+
+    // Helper warna & gaya badge Status Pengguna (Utama = Biru, Aktif = Hijau, Nonaktif = Merah)
+    function getStatusBadgeStyle(statusVal) {
+      var st = String(statusVal || 'Aktif').trim().toLowerCase();
+      if (st.indexOf('utama') !== -1) {
+        return {
+          pillClass: 'bg-blue-50 text-blue-600 border border-blue-200/80',
+          dotClass: 'bg-blue-600'
+        };
+      }
+      if (st.indexOf('non') !== -1 || st.indexOf('tidak') !== -1 || st.indexOf('blokir') !== -1) {
+        return {
+          pillClass: 'bg-rose-50 text-rose-600',
+          dotClass: 'bg-rose-500'
+        };
+      }
+      return {
+        pillClass: 'bg-emerald-50 text-emerald-600',
+        dotClass: 'bg-emerald-500'
+      };
+    }
+
+    function formatPhoneLinks(rawPhone) {
+      if (!rawPhone) return null;
+      var digits = String(rawPhone).replace(/[^0-9+]/g, '');
+      var cleanDigits = digits.replace(/[^0-9]/g, '');
+      if (cleanDigits.length < 7) return null;
+      var waNumber = cleanDigits;
+      if (waNumber.indexOf('0') === 0) waNumber = '62' + waNumber.substring(1);
+      else if (waNumber.indexOf('8') === 0) waNumber = '62' + waNumber;
+      var telNumber = digits.indexOf('+') === 0 ? digits : (cleanDigits.indexOf('62') === 0 ? '+' + cleanDigits : cleanDigits);
+      return {
+        raw: String(rawPhone).trim(),
+        waUrl: 'https://wa.me/' + waNumber,
+        telUrl: 'tel:' + telNumber
+      };
+    }
+
+    function detectColumnRoles(headers) {
+      var lower = headers.map(function (h) { return h.toLowerCase(); });
+      function findCol(keywords, fallbackIdx) {
+        for (var k = 0; k < keywords.length; k++) {
+          var kw = keywords[k];
+          var idx = lower.findIndex(function (h) { return h.indexOf(kw) !== -1; });
+          if (idx !== -1) return headers[idx];
+        }
+        return (fallbackIdx >= 0 && headers[fallbackIdx]) ? headers[fallbackIdx] : '';
+      }
+      var satkerIdx = lower.findIndex(function (h) { return (h.indexOf('kode') !== -1 && h.indexOf('satker') !== -1) || h.indexOf('kdsatker') !== -1 || h === 'satker'; });
+      if (satkerIdx === -1) satkerIdx = lower.findIndex(function (h) { return h.indexOf('satker') !== -1; });
+      var satkerCol = satkerIdx !== -1 ? headers[satkerIdx] : (headers[5] || '');
+
+      var namaSatkerIdx = lower.findIndex(function (h) { return h.indexOf('nama satker') !== -1 || h.indexOf('nmsatker') !== -1 || h.indexOf('uraian satker') !== -1; });
+      var namaSatkerCol = namaSatkerIdx !== -1 ? headers[namaSatkerIdx] : '';
+
+      var nipIdx = lower.findIndex(function (h) { return h.indexOf('nip') !== -1 || h.indexOf('nrp') !== -1; });
+      if (nipIdx === -1) {
+        nipIdx = lower.findIndex(function (h) { return h.indexOf('id pengguna') !== -1 || h.indexOf('userid') !== -1 || h.indexOf('nik') !== -1; });
+      }
+      var nipCol = nipIdx !== -1 ? headers[nipIdx] : (headers[1] || headers[0] || '');
+
+      return {
+        nameCol: findCol(['nama pengguna', 'nama lengkap', 'nama', 'name', 'pegawai'], 2),
+        nipCol: nipCol,
+        roleCol: findCol(['kelompok pengguna', 'kelompok', 'role', 'peran', 'kewenangan', 'level'], 4),
+        jabatanCol: findCol(['jabatan', 'posisi', 'pangkat'], -1),
+        satkerCol: satkerCol,
+        namaSatkerCol: namaSatkerCol,
+        phoneCol: findCol(['hp', 'telp', 'telepon', 'wa', 'whatsapp', 'ponsel', 'handphone', 'kontak'], 7),
+        emailCol: findCol(['email', 'surel', 'mail'], 6),
+        statusCol: findCol(['status', 'aktif', 'ket'], headers.length - 1)
+      };
+    }
+
+    function getGroupedUsers(rows, colMap) {
+      var groupsMap = new Map();
+      var orderedGroups = [];
+
+      rows.forEach(function (row, idx) {
+        var rawNip = String(row[colMap.nipCol] || '').trim();
+        var rawName = String(row[colMap.nameCol] || '').trim();
+        var cleanNipKey = rawNip.replace(/\s+/g, '').toLowerCase();
+        var cleanNameKey = rawName.replace(/\s+/g, ' ').toLowerCase();
+        var groupKey = (cleanNipKey && cleanNipKey !== '-') ? 'NIP:' + cleanNipKey : (cleanNameKey ? 'NAME:' + cleanNameKey : 'ROW:' + idx);
+
+        var kodeSatker = String(row[colMap.satkerCol] || '').trim();
+        var namaSatker = getNamaSatker(kodeSatker, row, colMap);
+        var rawKelompok = String(row[colMap.roleCol] || '').trim();
+        var rolesList = splitKelompokPengguna(rawKelompok);
+        var jabatan = String(row[colMap.jabatanCol] || '').trim();
+        var rawStatusVal = String(row[colMap.statusCol] || 'Aktif').trim();
+        var satkerLastLogin = getUserSatkerLastLogin(kodeSatker, rawName);
+        var statusVal = computeEffectiveStatusByLogin(rawStatusVal, satkerLastLogin);
+        var phoneVal = colMap.phoneCol ? String(row[colMap.phoneCol] || '').trim() : '';
+        var emailVal = colMap.emailCol ? String(row[colMap.emailCol] || '').trim() : '';
+
+        if (!groupsMap.has(groupKey)) {
+          var newGroup = {
+            groupKey: groupKey,
+            primaryName: rawName || rawNip || ('Pengguna #' + (idx + 1)),
+            nip: rawNip || '-',
+            phone: phoneVal,
+            email: emailVal,
+            status: statusVal,
+            lastLogin: satkerLastLogin || '',
+            jabatansSet: new Set(),
+            allRolesSet: new Set(),
+            satkerMap: new Map(),
+            rows: []
+          };
+          groupsMap.set(groupKey, newGroup);
+          orderedGroups.push(newGroup);
+        }
+
+        var g = groupsMap.get(groupKey);
+        g.rows.push(row);
+        if (!g.phone && phoneVal) g.phone = phoneVal;
+        if (!g.email && emailVal) g.email = emailVal;
+        if ((!g.nip || g.nip === '-') && rawNip) g.nip = rawNip;
+        if (jabatan) g.jabatansSet.add(jabatan);
+        if (satkerLastLogin) {
+          if (!g.lastLogin || parseLoginDateMs(satkerLastLogin) > parseLoginDateMs(g.lastLogin)) {
+            g.lastLogin = satkerLastLogin;
+          }
+        }
+        if (statusVal.toLowerCase().indexOf('utama') !== -1) {
+          g.status = statusVal;
+        } else if (g.status.toLowerCase().indexOf('utama') === -1 && g.status.toLowerCase().indexOf('non') !== -1 && statusVal.toLowerCase().indexOf('non') === -1) {
+          g.status = statusVal;
+        }
+        rolesList.forEach(function (r) { g.allRolesSet.add(r); });
+
+        var satkerKey = kodeSatker || 'TANPA_SATKER';
+        if (!g.satkerMap.has(satkerKey)) {
+          g.satkerMap.set(satkerKey, {
+            kodeSatker: kodeSatker || '-',
+            namaSatker: namaSatker,
+            lastLogin: satkerLastLogin || '',
+            effectiveStatus: statusVal,
+            roles: new Set(),
+            jabatans: new Set(),
+            rows: []
+          });
+        }
+        var sEntry = g.satkerMap.get(satkerKey);
+        if (!sEntry.namaSatker && namaSatker) sEntry.namaSatker = namaSatker;
+        if (!sEntry.lastLogin && satkerLastLogin) sEntry.lastLogin = satkerLastLogin;
+        sEntry.effectiveStatus = statusVal;
+        rolesList.forEach(function (r) { sEntry.roles.add(r); });
+        if (jabatan) sEntry.jabatans.add(jabatan);
+        sEntry.rows.push(row);
+      });
+
+      return orderedGroups.map(function (g) {
+        return {
+          groupKey: g.groupKey,
+          primaryName: g.primaryName,
+          nip: g.nip,
+          phone: g.phone,
+          email: g.email,
+          status: g.status,
+          lastLogin: g.lastLogin,
+          rows: g.rows,
+          allJabatans: Array.from(g.jabatansSet),
+          allRoles: Array.from(g.allRolesSet),
+          satkerList: Array.from(g.satkerMap.values()).map(function (s) {
+            return {
+              kodeSatker: s.kodeSatker,
+              namaSatker: s.namaSatker,
+              lastLogin: s.lastLogin,
+              effectiveStatus: s.effectiveStatus,
+              roles: Array.from(s.roles),
+              jabatans: Array.from(s.jabatans),
+              rows: s.rows
+            };
+          })
+        };
+      });
+    }
+
+    function updateDatabaseUI(sourceName) {
+      if (sourceName) {
+        var lbl = document.getElementById('dbSourceLabel');
+        var syncTxt = document.getElementById('syncStatusText');
+        if (lbl) lbl.textContent = sourceName;
+        if (syncTxt) syncTxt.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span><span>' + escapeHtml(sourceName) + '</span>';
+      }
+      var colLbl = document.getElementById('dbColCountLabel');
+      if (colLbl) colLbl.textContent = dbHeaders.length + ' Kolom (' + Object.keys(refSatkerMap).length + ' Ref Satker)';
+      buildFilterChips();
+      window.renderDataList();
+      window.renderSatkerList();
+      if (selectedSatkerKode) {
+        window.openSatkerDetailView(selectedSatkerKode);
+      }
+      renderFullTable();
+      renderRefUsersList();
+    }
+
+    function buildFilterChips() {
+      var container = document.getElementById('filterChipsContainer');
+      if (!container) return;
+      var colMap = detectColumnRoles(dbHeaders);
+      var roleCol = colMap.roleCol;
+
+      var uniqueRoles = new Set(['SEMUA']);
+      dbRows.forEach(function (r) {
+        splitKelompokPengguna(r[roleCol]).forEach(function (sr) { uniqueRoles.add(sr); });
+      });
+
+      container.innerHTML = '';
+      var sortedRoles = Array.from(uniqueRoles).sort(function (a, b) {
+        function getRolePriority(rName) {
+          var u = String(rName || '').trim().toUpperCase();
+          if (u === 'SEMUA') return 0;
+          if (u === 'KPA' || u.indexOf('KPA ') === 0 || u.indexOf('KPA_') === 0) return 1;
+          if (u === 'PPK' || u.indexOf('PPK ') === 0 || u.indexOf('PPK_') === 0) return 2;
+          if (u === 'PPSPM' || u.indexOf('PPSPM ') === 0 || u.indexOf('PPSPM_') === 0) return 3;
+          if (u === 'BENDAHARA' || u.indexOf('BENDAHARA') === 0) return 4;
+          return 5;
+        }
+        var pA = getRolePriority(a);
+        var pB = getRolePriority(b);
+        if (pA !== pB) return pA - pB;
+        return 0;
+      });
+      sortedRoles.forEach(function (roleName) {
+        var isSelected = activeFilter === roleName;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isSelected
+          ? 'px-3 py-1.5 rounded-xl text-[11px] font-bold bg-blue-700 text-white shadow-sm shrink-0 transition cursor-pointer'
+          : 'px-3 py-1.5 rounded-xl text-[11px] font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 shrink-0 transition cursor-pointer';
+        btn.textContent = roleName;
+        btn.onclick = function () {
+          activeFilter = roleName;
+          buildFilterChips();
+          window.renderDataList();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    window.clearSearch = function () {
+      var inp = document.getElementById('searchInput');
+      if (inp) inp.value = '';
+      window.renderDataList();
+    };
+
+    window.renderDataList = function () {
+      var listContainer = document.getElementById('dataListContainer');
+      if (!listContainer) return;
+      var searchInput = document.getElementById('searchInput');
+      var query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      var clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
+
+      var colMap = detectColumnRoles(dbHeaders);
+      var isAdmin = currentUser && currentUser.role === 'admin';
+      var groupedUsers = getGroupedUsers(dbRows, colMap);
+
+      document.getElementById('statTotal').textContent = groupedUsers.length;
+      var activeCount = groupedUsers.filter(function (g) {
+        var st = String(g.status || '').toLowerCase();
+        return st.indexOf('non') === -1 && st.indexOf('tidak') === -1 && st.indexOf('blokir') === -1;
+      }).length;
+      document.getElementById('statActive').textContent = activeCount;
+
+      var filteredGroups = groupedUsers.filter(function (group) {
+        if (activeFilter !== 'SEMUA' && group.allRoles.indexOf(activeFilter) === -1) return false;
+        if (!query) return true;
+        var matchRowFields = group.rows.some(function (r) {
+          return dbHeaders.some(function (h) { return String(r[h] || '').toLowerCase().indexOf(query) !== -1; });
+        });
+        var matchNamaSatker = group.satkerList.some(function (s) {
+          return String(s.namaSatker || '').toLowerCase().indexOf(query) !== -1 || String(s.kodeSatker || '').toLowerCase().indexOf(query) !== -1;
+        });
+        return matchRowFields || matchNamaSatker;
+      });
+
+      listContainer.innerHTML = '';
+      if (filteredGroups.length === 0) {
+        listContainer.innerHTML = '<div class="bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-sm my-4">' +
+          '<div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-folder-open"></i></div>' +
+          '<h3 class="text-sm font-bold text-slate-700">Data Tidak Ditemukan</h3>' +
+          '<p class="text-xs text-slate-400 mt-1">Coba kata kunci pencarian atau filter lainnya.</p></div>';
+        return;
+      }
+
+      filteredGroups.forEach(function (group) {
+        var statusStyle = getStatusBadgeStyle(group.status);
+        var initial = String(group.primaryName).trim().charAt(0).toUpperCase() || 'U';
+        var phoneInfo = formatPhoneLinks(group.phone);
+        var isMultiSatker = group.satkerList.length > 1 || group.rows.length > 1;
+        var displayedNip = formatDisplayCellValue(colMap.nipCol, group.nip);
+
+        var card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 hover:border-blue-400 transition cursor-pointer relative group';
+        card.onclick = function () { openDetailModal(group); };
+
+        var satkerBlocksHtml = group.satkerList.map(function (s) {
+          var satkerTitle = s.namaSatker
+            ? '<span class="font-bold text-slate-700">' + escapeHtml(s.kodeSatker) + '</span> <span class="text-slate-500">- ' + escapeHtml(s.namaSatker) + '</span>'
+            : '<span class="font-bold text-slate-700">Satker: ' + escapeHtml(s.kodeSatker) + '</span>';
+          return '<div class="flex items-center gap-1.5 text-[11px] text-slate-600 truncate">' +
+            '<i class="fa-solid fa-building-columns text-blue-600 text-[10px] shrink-0"></i>' +
+            '<span class="truncate">' + satkerTitle + '</span></div>';
+        }).join('');
+
+        var topMinimalContactIconsHtml = phoneInfo ? (
+          '<div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">' +
+            '<a href="' + phoneInfo.waUrl + '" target="_blank" rel="noopener noreferrer" title="Chat WhatsApp (' + escapeHtml(phoneInfo.raw) + ')" class="w-8 h-8 rounded-full bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition active:scale-90 shadow-sm"><i class="fa-brands fa-whatsapp text-sm"></i></a>' +
+            '<a href="' + phoneInfo.telUrl + '" title="Telepon (' + escapeHtml(phoneInfo.raw) + ')" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 flex items-center justify-center transition active:scale-90 shadow-sm"><i class="fa-solid fa-phone text-xs"></i></a>' +
+          '</div>'
+        ) : '';
+
+        var adminCardBtns = isAdmin ? (
+          '<div class="flex items-center justify-end gap-1.5 pt-2.5 mt-2.5 border-t border-slate-100" onclick="event.stopPropagation()">' +
+            '<button type="button" onclick="window.handleAdminCardEdit(\'' + escapeHtml(group.groupKey) + '\')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-blue-700 font-semibold text-[11px] flex items-center gap-1 transition cursor-pointer"><i class="fa-solid fa-pen text-[10px]"></i> Ubah</button>' +
+            '<button type="button" onclick="window.handleAdminCardDelete(\'' + escapeHtml(group.groupKey) + '\')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-rose-600 font-semibold text-[11px] flex items-center gap-1 transition cursor-pointer"><i class="fa-solid fa-trash text-[10px]"></i> Hapus</button>' +
+          '</div>'
+        ) : '';
+
+        card.innerHTML =
+          '<div class="flex items-center gap-3.5">' +
+            '<div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-sm relative">' +
+              escapeHtml(initial) +
+              (isMultiSatker ? '<span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-extrabold text-[9px] border border-white shadow">' + group.satkerList.length + '</span>' : '') +
+            '</div>' +
+            '<div class="flex-1 min-w-0 flex items-center justify-between gap-2">' +
+              '<div class="min-w-0 flex-1">' +
+                '<h3 class="text-sm font-bold text-slate-800 truncate leading-snug">' + escapeHtml(String(group.primaryName)) + '</h3>' +
+                '<p class="text-[11px] text-slate-500 font-mono truncate mt-0.5">' + escapeHtml(colMap.nipCol) + ': ' + escapeHtml(String(displayedNip)) + '</p>' +
+              '</div>' +
+              topMinimalContactIconsHtml +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-start gap-3">' +
+            '<div class="shrink-0">' +
+              '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ' + statusStyle.pillClass + '">' +
+                '<span class="w-1.5 h-1.5 rounded-full ' + statusStyle.dotClass + '"></span>' + escapeHtml(group.status) +
+              '</span>' +
+            '</div>' +
+            '<div class="flex-1 min-w-0 space-y-1 pt-0.5">' + satkerBlocksHtml + '</div>' +
+          '</div>' + adminCardBtns;
+
+        listContainer.appendChild(card);
+      });
+    };
+
+    function getAllSatkersSummary() {
+      var colMap = detectColumnRoles(dbHeaders);
+      var groupedUsers = getGroupedUsers(dbRows, colMap);
+      var satkerDict = new Map();
+
+      groupedUsers.forEach(function (group) {
+        group.satkerList.forEach(function (s) {
+          var kd = String(s.kodeSatker || '-').trim();
+          if (!kd || kd === '-') return;
+          if (!satkerDict.has(kd)) {
+            satkerDict.set(kd, {
+              kodeSatker: kd,
+              namaSatker: s.namaSatker || getNamaSatker(kd, null, colMap) || 'Nama Satker belum terdaftar di referensi satker',
+              users: []
+            });
+          }
+          var entry = satkerDict.get(kd);
+          if ((!entry.namaSatker || entry.namaSatker.indexOf('belum terdaftar') !== -1) && s.namaSatker) {
+            entry.namaSatker = s.namaSatker;
+          }
+          entry.users.push({
+            group: group,
+            rolesInSatker: s.roles || [],
+            jabatansInSatker: s.jabatans || []
+          });
+        });
+      });
+
+      Object.keys(refSatkerMap || {}).forEach(function (kd) {
+        var cleanKd = String(kd || '').trim();
+        if (!cleanKd || cleanKd.length < 4) return;
+        if (!satkerDict.has(cleanKd)) {
+          satkerDict.set(cleanKd, {
+            kodeSatker: cleanKd,
+            namaSatker: refSatkerMap[cleanKd] || '',
+            users: []
+          });
+        }
+      });
+
+      return Array.from(satkerDict.values()).sort(function (a, b) {
+        if (b.users.length !== a.users.length) return b.users.length - a.users.length;
+        return a.kodeSatker.localeCompare(b.kodeSatker);
+      });
+    }
+
+    window.renderSatkerList = function () {
+      var container = document.getElementById('satkerListContainer');
+      var badge = document.getElementById('satkerTotalBadge');
+      if (!container) return;
+
+      var allSatkers = getAllSatkersSummary();
+      if (badge) badge.textContent = allSatkers.length + ' Satker';
+
+      var searchInp = document.getElementById('satkerSearchInput');
+      var q = (searchInp ? searchInp.value : '').trim().toLowerCase();
+      var filtered = allSatkers.filter(function (s) {
+        if (!q) return true;
+        return s.kodeSatker.toLowerCase().indexOf(q) !== -1 || String(s.namaSatker || '').toLowerCase().indexOf(q) !== -1;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-sm my-2">' +
+          '<div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto mb-2"><i class="fa-solid fa-building-circle-xmark"></i></div>' +
+          '<h3 class="text-xs font-bold text-slate-700">Satker Tidak Ditemukan</h3>' +
+          '<p class="text-[11px] text-slate-400 mt-0.5">Coba kata kunci Kode atau Nama Satker lainnya.</p></div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(function (s) {
+        var count = s.users.length;
+        return '<div onclick="window.openSatkerDetailView(\'' + escapeHtml(s.kodeSatker) + '\')" class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/90 hover:border-blue-400 transition cursor-pointer flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<span class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-mono font-bold text-[10px]">' + escapeHtml(s.kodeSatker) + '</span>' +
+              '<span class="px-2 py-0.5 rounded-full ' + (count > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500') + ' font-bold text-[10px]">' + count + ' Pengguna</span>' +
+            '</div>' +
+            '<h3 class="text-xs font-bold text-slate-800 mt-1.5 truncate">' + escapeHtml(s.namaSatker || 'Nama Satker belum terdaftar') + '</h3>' +
+          '</div>' +
+          '<i class="fa-solid fa-chevron-right text-slate-400 text-xs shrink-0"></i>' +
+        '</div>';
+      }).join('');
+    };
+
+    window.openSatkerDetailView = function (kodeSatker) {
+      selectedSatkerKode = kodeSatker;
+      var allSatkers = getAllSatkersSummary();
+      var found = allSatkers.find(function (s) { return s.kodeSatker === kodeSatker; });
+      if (!found) return;
+
+      document.getElementById('satkerMasterView').classList.add('hidden');
+      document.getElementById('satkerDetailView').classList.remove('hidden');
+
+      document.getElementById('selectedSatkerKodeBadge').textContent = 'Satker: ' + found.kodeSatker;
+      document.getElementById('selectedSatkerCountBadge').textContent = found.users.length + ' Pengguna Terdaftar';
+      document.getElementById('selectedSatkerNamaTitle').textContent = found.namaSatker || 'Nama Satker belum terdaftar di referensi satker';
+
+      var usersContainer = document.getElementById('satkerUsersContainer');
+      var colMap = detectColumnRoles(dbHeaders);
+
+      if (found.users.length === 0) {
+        usersContainer.innerHTML = '<div class="bg-white rounded-3xl p-8 text-center border border-slate-200/80 shadow-sm">' +
+          '<p class="text-xs font-bold text-slate-600">Belum ada data pengguna di Satker ini.</p></div>';
+        return;
+      }
+
+      usersContainer.innerHTML = '';
+      var sortedSatkerUsers = found.users.slice().sort(function (a, b) {
+        function getStatusPriority(stVal) {
+          var s = String(stVal || 'Aktif').trim().toLowerCase();
+          if (s.indexOf('utama') !== -1) return 1;
+          if (s.indexOf('non') !== -1 || s.indexOf('tidak') !== -1 || s.indexOf('blokir') !== -1) return 3;
+          return 2;
+        }
+        return getStatusPriority(a.group.status) - getStatusPriority(b.group.status);
+      });
+      sortedSatkerUsers.forEach(function (uItem) {
+        var group = uItem.group;
+        var rolesText = uItem.rolesInSatker.length > 0 ? uItem.rolesInSatker.join(' : ') : '';
+        var initial = String(group.primaryName).trim().charAt(0).toUpperCase() || 'U';
+        var phoneInfo = formatPhoneLinks(group.phone);
+        var statusStyle = getStatusBadgeStyle(group.status);
+        var displayedNip = formatDisplayCellValue(colMap.nipCol, group.nip);
+
+        var topMinimalContactIconsHtml = phoneInfo ? (
+          '<div class="flex items-center gap-1.5 shrink-0" onclick="event.stopPropagation()">' +
+            '<a href="' + phoneInfo.waUrl + '" target="_blank" rel="noopener noreferrer" title="Chat WhatsApp" class="w-8 h-8 rounded-full bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white border border-emerald-200 flex items-center justify-center transition shadow-sm"><i class="fa-brands fa-whatsapp text-sm"></i></a>' +
+            '<a href="' + phoneInfo.telUrl + '" title="Telepon" class="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 flex items-center justify-center transition shadow-sm"><i class="fa-solid fa-phone text-xs"></i></a>' +
+          '</div>'
+        ) : '';
+
+        var card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 hover:border-blue-400 transition cursor-pointer';
+        card.onclick = function () { openDetailModal(group); };
+        card.innerHTML =
+          '<div class="flex items-center gap-3.5">' +
+            '<div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-sm">' +
+              escapeHtml(initial) +
+            '</div>' +
+            '<div class="flex-1 min-w-0 flex items-center justify-between gap-2">' +
+              '<div class="min-w-0 flex-1">' +
+                '<h3 class="text-sm font-bold text-slate-800 truncate leading-snug">' + escapeHtml(String(group.primaryName)) + '</h3>' +
+                '<p class="text-[11px] text-slate-500 font-mono truncate mt-0.5">' + escapeHtml(colMap.nipCol) + ': ' + escapeHtml(String(displayedNip)) + '</p>' +
+              '</div>' +
+              topMinimalContactIconsHtml +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center gap-2.5">' +
+            '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ' + statusStyle.pillClass + '">' +
+              '<span class="w-1.5 h-1.5 rounded-full ' + statusStyle.dotClass + '"></span>' + escapeHtml(group.status) +
+            '</span>' +
+            (rolesText ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 font-bold text-[10px] truncate min-w-0"><i class="fa-solid fa-user-tag text-[9px] text-amber-600 shrink-0"></i><span class="truncate">' + escapeHtml(rolesText) + '</span></span>' : '') +
+          '</div>';
+        usersContainer.appendChild(card);
+      });
+    };
+
+    window.closeSatkerDetailView = function () {
+      selectedSatkerKode = null;
+      document.getElementById('satkerDetailView').classList.add('hidden');
+      document.getElementById('satkerMasterView').classList.remove('hidden');
+    };
+
+    function renderFullTable() {
+      var schemaList = document.getElementById('schemaColumnsList');
+      var thead = document.getElementById('fullTableHead');
+      var tbody = document.getElementById('fullTableBody');
+      if (!schemaList || !thead || !tbody) return;
+      var isAdmin = currentUser && currentUser.role === 'admin';
+      var colMap = detectColumnRoles(dbHeaders);
+
+      schemaList.innerHTML = dbHeaders.map(function (h) {
+        return '<span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold">' + escapeHtml(h) + '</span>';
+      }).join('') + '<span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">+ Nama Satker (Ref)</span>';
+
+      thead.innerHTML = '<tr>' +
+        dbHeaders.map(function (h) { return '<th class="py-2.5 px-3 whitespace-nowrap">' + escapeHtml(h) + '</th>'; }).join('') +
+        '<th class="py-2.5 px-3 whitespace-nowrap bg-amber-50/80 text-amber-900">Nama Satker (Referensi)</th>' +
+        (isAdmin ? '<th class="py-2.5 px-3 text-right">Aksi</th>' : '') +
+      '</tr>';
+
+      tbody.innerHTML = dbRows.map(function (row) {
+        var kdSatker = row[colMap.satkerCol] || '';
+        var nmSatker = getNamaSatker(kdSatker, row, colMap) || '-';
+        return '<tr class="hover:bg-blue-50/50 cursor-pointer transition" onclick="window.openDetailByRow(' + row._rowIndex + ')">' +
+          dbHeaders.map(function (h) {
+            var cellVal = formatDisplayCellValue(h, row[h] !== undefined ? row[h] : '');
+            return '<td class="py-2.5 px-3 whitespace-nowrap max-w-[180px] truncate">' + escapeHtml(String(cellVal)) + '</td>';
+          }).join('') +
+          '<td class="py-2.5 px-3 whitespace-nowrap font-medium text-blue-900 bg-amber-50/30">' + escapeHtml(nmSatker) + '</td>' +
+          (isAdmin ? '<td class="py-2.5 px-3 whitespace-nowrap text-right" onclick="event.stopPropagation()">' +
+            '<button type="button" onclick="window.openFormModalByRow(' + row._rowIndex + ')" class="text-blue-600 hover:text-blue-800 font-bold mr-2 cursor-pointer"><i class="fa-solid fa-pen"></i></button>' +
+            '<button type="button" onclick="window.confirmDeleteByRow(' + row._rowIndex + ')" class="text-rose-600 hover:text-rose-800 font-bold cursor-pointer"><i class="fa-solid fa-trash"></i></button>' +
+          '</td>' : '') +
+        '</tr>';
+      }).join('');
+    }
+
+    window.openDetailByRow = function (rowIndex) {
+      var colMap = detectColumnRoles(dbHeaders);
+      var groups = getGroupedUsers(dbRows, colMap);
+      var foundGroup = groups.find(function (g) { return g.rows.some(function (r) { return r._rowIndex === rowIndex; }); });
+      if (foundGroup) openDetailModal(foundGroup);
+    };
+
+    window.handleAdminCardEdit = function (groupKey) {
+      var colMap = detectColumnRoles(dbHeaders);
+      var groups = getGroupedUsers(dbRows, colMap);
+      var g = groups.find(function (item) { return item.groupKey === groupKey; });
+      if (!g) return;
+      if (g.rows.length === 1) window.openFormModal(g.rows[0]);
+      else {
+        openDetailModal(g);
+        showToast('Pilih baris Satker yang ingin diubah.');
+      }
+    };
+
+    window.handleAdminCardDelete = function (groupKey) {
+      var colMap = detectColumnRoles(dbHeaders);
+      var groups = getGroupedUsers(dbRows, colMap);
+      var g = groups.find(function (item) { return item.groupKey === groupKey; });
+      if (!g) return;
+      if (g.rows.length === 1) window.confirmDeleteByRow(g.rows[0]._rowIndex);
+      else {
+        openDetailModal(g);
+        showToast('Pilih baris Satker yang ingin dihapus.');
+      }
+    };
+
+    function openDetailModal(group) {
+      selectedGroup = group;
+      var colMap = detectColumnRoles(dbHeaders);
+      var isAdmin = currentUser && currentUser.role === 'admin';
+      var phoneInfo = formatPhoneLinks(group.phone);
+
+      document.getElementById('detailAvatar').textContent = String(group.primaryName).trim().charAt(0).toUpperCase() || 'S';
+      document.getElementById('detailRolePill').textContent = group.satkerList.length > 1
+        ? group.satkerList.length + ' SATKER TERDAFTAR'
+        : (group.allRoles[0] || 'PENGGUNA SAKTI');
+      document.getElementById('detailTitleName').textContent = group.primaryName;
+      document.getElementById('detailSubtitleNip').textContent = colMap.nipCol + ': ' + formatDisplayCellValue(colMap.nipCol, group.nip);
+
+      var fieldsBox = document.getElementById('detailFieldsContainer');
+
+      var contactQuickHtml = phoneInfo ? (
+        '<div class="bg-gradient-to-r from-emerald-50 to-blue-50 p-3.5 rounded-2xl border border-emerald-200/80 flex items-center justify-between gap-2">' +
+          '<div class="min-w-0">' +
+            '<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Kontak Langsung (No HP)</span>' +
+            '<span class="text-xs font-extrabold text-slate-800 font-mono">' + escapeHtml(phoneInfo.raw) + '</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-1.5 shrink-0">' +
+            '<a href="' + phoneInfo.waUrl + '" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"><i class="fa-brands fa-whatsapp text-sm"></i> Chat WA</a>' +
+            '<a href="' + phoneInfo.telUrl + '" class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"><i class="fa-solid fa-phone text-xs"></i> Telepon</a>' +
+          '</div>' +
+        '</div>'
+      ) : '';
+
+      var satkerCardsHtml = group.rows.map(function (row) {
+        var kdSatker = String(row[colMap.satkerCol] || '-').trim();
+        var nmSatker = getNamaSatker(kdSatker, row, colMap) || 'Nama Satker belum terdaftar di referensi satker';
+        var rowRoles = splitKelompokPengguna(row[colMap.roleCol]);
+        var rowAdminBtns = isAdmin ? (
+          '<div class="flex items-center gap-1.5 pt-2 mt-2 border-t border-slate-100 justify-end">' +
+            '<button type="button" onclick="window.closeDetailModal(); window.openFormModalByRow(' + row._rowIndex + ')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-pen"></i> Ubah Baris Ini</button>' +
+            '<button type="button" onclick="window.closeDetailModal(); window.confirmDeleteByRow(' + row._rowIndex + ')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] flex items-center gap-1 cursor-pointer"><i class="fa-solid fa-trash"></i> Hapus Baris Ini</button>' +
+          '</div>'
+        ) : '';
+
+        return '<div class="bg-white p-3.5 rounded-2xl border border-blue-200/80 shadow-sm space-y-1.5">' +
+          '<div class="flex items-center justify-between">' +
+            '<span class="px-2 py-0.5 rounded-md bg-blue-700 text-white font-mono font-bold text-[10px]">Kode Satker: ' + escapeHtml(kdSatker) + '</span>' +
+            '<span class="text-[10px] text-slate-400 font-medium">Baris #' + row._rowIndex + '</span>' +
+          '</div>' +
+          '<div class="text-xs font-bold text-slate-800 flex items-start gap-1.5 pt-0.5"><i class="fa-solid fa-building-columns text-amber-500 mt-0.5"></i><span>' + escapeHtml(nmSatker) + '</span></div>' +
+          (rowRoles.length > 0 ? '<div class="pt-1"><span class="text-[10px] text-slate-400 font-semibold block mb-1">Peran di Satker ini:</span><div class="flex flex-wrap gap-1">' +
+            rowRoles.map(function (rr) { return '<span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-bold">' + escapeHtml(rr) + '</span>'; }).join('') +
+          '</div></div>' : '') +
+          rowAdminBtns +
+        '</div>';
+      }).join('');
+
+      var primaryRecord = group.rows[0];
+      var otherFieldsHtml = dbHeaders.map(function (h) {
+        var isStatusField = (h === colMap.statusCol);
+        var uniqueVals = isStatusField
+          ? [String(group.status || 'Aktif')]
+          : Array.from(new Set(group.rows.map(function (r) { return String(r[h] !== undefined ? r[h] : '').trim(); }).filter(function (v) { return v !== ''; })));
+        var rawDisplayVal = uniqueVals.length > 0 ? uniqueVals.join(' | ') : '-';
+        var displayVal = rawDisplayVal !== '-' ? formatDisplayCellValue(h, rawDisplayVal) : '-';
+        return '<div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex flex-col">' +
+          '<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">' + escapeHtml(h) + '</span>' +
+          '<span class="text-xs font-semibold text-slate-800 mt-0.5 break-words font-mono">' + escapeHtml(displayVal) + '</span></div>';
+      }).join('');
+
+      var loginInfoPerSatker = group.satkerList.map(function (s) {
+        var ll = s.lastLogin || getUserSatkerLastLogin(s.kodeSatker, group.primaryName) || '-';
+        var daysInfo = '';
+        var ts = parseLoginDateMs(ll);
+        if (ts > 0) {
+          var diffD = Math.floor((Date.now() - ts) / (1000 * 60 * 60 * 24));
+          if (diffD >= 0) {
+            daysInfo = ' (' + diffD + ' hari lalu' + (diffD > 90 ? ' - >90 Hari' : '') + ')';
+          }
+        }
+        return (group.satkerList.length > 1 ? '[' + s.kodeSatker + '] ' : '') + ll + daysInfo;
+      }).join(' | ');
+
+      var lastLoginFieldHtml = '<div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex flex-col">' +
+        '<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status Login Terakhir</span>' +
+        '<span class="text-xs font-semibold text-slate-800 mt-0.5 break-words font-mono">' + escapeHtml(loginInfoPerSatker || '-') + '</span></div>';
+
+      fieldsBox.innerHTML = contactQuickHtml +
+        '<div class="space-y-2"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block px-1">Daftar Satker & Kewenangan (' + group.rows.length + ' Data Terhubung)</span>' + satkerCardsHtml + '</div>' +
+        '<div class="pt-2 space-y-2"><span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block px-1">Rincian Kolom Database Spreadsheet</span>' + otherFieldsHtml + lastLoginFieldHtml + '</div>';
+
+      var adminActions = document.getElementById('detailAdminActions');
+      if (isAdmin) {
+        adminActions.classList.remove('hidden');
+        document.getElementById('btnDetailEdit').onclick = function () {
+          window.closeDetailModal();
+          window.openFormModal(primaryRecord);
+        };
+        document.getElementById('btnDetailDelete').onclick = function () {
+          window.closeDetailModal();
+          window.confirmDeleteByRow(primaryRecord._rowIndex);
+        };
+      } else {
+        adminActions.classList.add('hidden');
+      }
+
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    window.closeDetailModal = function () {
+      document.getElementById('detailModal').classList.add('hidden');
+    };
+
+    window.copyDetailText = function () {
+      if (!selectedGroup) return;
+      var colMap = detectColumnRoles(dbHeaders);
+      var satkerSummary = selectedGroup.satkerList
+        .map(function (s) { return s.kodeSatker + (s.namaSatker ? ' - ' + s.namaSatker : '') + ' (' + s.roles.join(', ') + ')'; })
+        .join('\n  * ');
+      var text = [
+        'Nama: ' + selectedGroup.primaryName,
+        colMap.nipCol + ': ' + selectedGroup.nip,
+        'No HP: ' + (selectedGroup.phone || '-'),
+        'Kelompok Pengguna: ' + selectedGroup.allRoles.join(', '),
+        'Daftar Satker:\n  * ' + satkerSummary
+      ].join('\n');
+      copyTextToClipboard(text);
+      showToast('Rincian data pengguna disalin!');
+    };
+
+    window.openFormModalByRow = function (rowIndex) {
+      var rec = dbRows.find(function (r) { return r._rowIndex === rowIndex; });
+      if (rec) window.openFormModal(rec);
+    };
+
+    window.openFormModal = function (recordToEdit) {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('Hanya Level Admin yang dapat mengubah data!', true);
+        return;
+      }
+      var isEdit = !!recordToEdit;
+      document.getElementById('formModalTitle').textContent = isEdit ? 'Ubah Data Pengguna SAKTI' : 'Rekam Data Pengguna Baru';
+      document.getElementById('formRowIndex').value = isEdit ? recordToEdit._rowIndex : '';
+
+      var container = document.getElementById('dynamicFormFields');
+      container.innerHTML = '';
+
+      dbHeaders.forEach(function (header, idx) {
+        var lowerH = header.toLowerCase();
+        var existingVal = isEdit ? (recordToEdit[header] || '') : (idx === 0 && lowerH === 'no' ? String(dbRows.length + 1) : '');
+        var inputElementHtml = '';
+        if (lowerH.indexOf('status') !== -1) {
+          inputElementHtml = '<select data-col="' + escapeHtml(header) + '" class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600">' +
+            '<option value="AKTIF" ' + (existingVal === 'AKTIF' ? 'selected' : '') + '>AKTIF</option>' +
+            '<option value="UTAMA" ' + (existingVal === 'UTAMA' ? 'selected' : '') + '>UTAMA</option>' +
+            '<option value="NONAKTIF" ' + (existingVal === 'NONAKTIF' ? 'selected' : '') + '>NONAKTIF</option></select>';
+        } else {
+          inputElementHtml = '<input type="text" data-col="' + escapeHtml(header) + '" value="' + escapeHtml(String(existingVal)) + '" placeholder="Masukkan ' + escapeHtml(header) + '..." class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" />';
+        }
+        var fieldDiv = document.createElement('div');
+        fieldDiv.innerHTML = '<label class="block text-[11px] font-bold text-slate-700 mb-1">' + escapeHtml(header) + '</label>' + inputElementHtml;
+        container.appendChild(fieldDiv);
+      });
+
+      document.getElementById('formModal').classList.remove('hidden');
+    };
+
+    window.closeFormModal = function () {
+      document.getElementById('formModal').classList.add('hidden');
+    };
+
+    window.handleSaveRecord = function () {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('Hanya Admin yang diizinkan menyimpan data!', true);
+        return;
+      }
+      var rowIndexVal = document.getElementById('formRowIndex').value;
+      var inputs = document.querySelectorAll('#dynamicFormFields [data-col]');
+      var newRecord = {};
+      inputs.forEach(function (inp) {
+        var colName = inp.getAttribute('data-col');
+        newRecord[colName] = inp.value.trim();
+      });
+      var isEdit = rowIndexVal !== '';
+
+      if (supabaseClient) {
+        var submitBtn = document.getElementById('btnSubmitForm');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+        var op = isEdit
+          ? supabaseClient.from('pengguna').update({ data: newRecord }).eq('id', Number(rowIndexVal))
+          : supabaseClient.from('pengguna').insert([{ data: newRecord }]);
+        op.then(function (res) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Data';
+          if (res.error) {
+            showToast('Gagal menyimpan: ' + res.error.message, true);
+            return;
+          }
+          window.closeFormModal();
+          window.syncFromSpreadsheet(false);
+          showToast(isEdit ? 'Data berhasil diperbarui di Supabase!' : 'Data baru berhasil direkam ke Supabase!');
+        });
+        return;
+      }
+
+      if (isRunningInGAS()) {
+        var submitBtn = document.getElementById('btnSubmitForm');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+        var runner = google.script.run
+          .withSuccessHandler(function (res) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Data';
+            dbHeaders = res.headers;
+            dbRows = res.rows;
+            window.closeFormModal();
+            updateDatabaseUI();
+            showToast(isEdit ? 'Data berhasil diperbarui di Spreadsheet!' : 'Data baru berhasil direkam!');
+          })
+          .withFailureHandler(function (err) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Data';
+            showToast('Gagal menyimpan: ' + err.message, true);
+          });
+
+        if (isEdit) runner.updateRecordGAS(Number(rowIndexVal), newRecord, currentUser.role);
+        else runner.saveRecordGAS(newRecord, currentUser.role);
+        return;
+      }
+
+      if (isEdit) {
+        var idx = dbRows.findIndex(function (r) { return String(r._rowIndex) === String(rowIndexVal); });
+        if (idx !== -1) {
+          newRecord._rowIndex = Number(rowIndexVal);
+          dbRows[idx] = newRecord;
+        }
+      } else {
+        var maxRowIdx = dbRows.reduce(function (max, r) { return Math.max(max, r._rowIndex || 1); }, 1);
+        newRecord._rowIndex = maxRowIdx + 1;
+        dbRows.unshift(newRecord);
+      }
+
+      saveToLocalCache();
+      window.closeFormModal();
+      updateDatabaseUI();
+      showToast(isEdit ? 'Data pengguna berhasil diubah!' : 'Data pengguna baru berhasil direkam!');
+    };
+
+    window.confirmDeleteByRow = function (rowIndex) {
+      if (!currentUser || currentUser.role !== 'admin') {
+        showToast('Hanya Level Admin yang dapat menghapus data!', true);
+        return;
+      }
+      var target = dbRows.find(function (r) { return r._rowIndex === rowIndex; });
+      if (!target) return;
+      pendingDeleteIndex = rowIndex;
+      var colMap = detectColumnRoles(dbHeaders);
+      var label = target[colMap.nameCol] || target[dbHeaders[0]] || 'Baris #' + rowIndex;
+      document.getElementById('deleteTargetName').textContent = 'Apakah Anda yakin ingin menghapus data "' + label + '"?';
+      document.getElementById('confirmDeleteBtn').onclick = executeDelete;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    };
+
+    window.closeDeleteModal = function () {
+      pendingDeleteIndex = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    };
+
+    function executeDelete() {
+      if (pendingDeleteIndex === null) return;
+      var rowIndex = pendingDeleteIndex;
+      if (supabaseClient) {
+        supabaseClient.from('pengguna').delete().eq('id', Number(rowIndex)).then(function (res) {
+          window.closeDeleteModal();
+          if (res.error) {
+            showToast('Gagal menghapus: ' + res.error.message, true);
+            return;
+          }
+          window.syncFromSpreadsheet(false);
+          showToast('Data berhasil dihapus dari Supabase!');
+        });
+        return;
+      }
+      if (isRunningInGAS()) {
+        google.script.run
+          .withSuccessHandler(function (res) {
+            window.closeDeleteModal();
+            dbHeaders = res.headers;
+            dbRows = res.rows;
+            updateDatabaseUI();
+            showToast('Data berhasil dihapus dari Spreadsheet!');
+          })
+          .withFailureHandler(function (err) {
+            window.closeDeleteModal();
+            showToast('Gagal menghapus: ' + err.message, true);
+          })
+          .deleteRecordGAS(rowIndex, currentUser.role);
+        return;
+      }
+      dbRows = dbRows.filter(function (r) { return r._rowIndex !== rowIndex; });
+      saveToLocalCache();
+      window.closeDeleteModal();
+      updateDatabaseUI();
+      showToast('Data pengguna telah dihapus.');
+    }
+
+    window.switchBottomTab = function (tabName) {
+      if (currentUser && currentUser.role !== 'admin' && tabName === 'profile') {
+        var adminModal = document.getElementById('adminOnlyModal');
+        if (adminModal) adminModal.classList.remove('hidden');
+        return;
+      }
+      var views = {
+        data: document.getElementById('subViewData'),
+        satker: document.getElementById('subViewSatker'),
+        table: document.getElementById('subViewTable'),
+        profile: document.getElementById('subViewProfile')
+      };
+      var navBtns = {
+        data: document.getElementById('navBtnData'),
+        satker: document.getElementById('navBtnSatker'),
+        table: document.getElementById('navBtnTable'),
+        profile: document.getElementById('navBtnProfile')
+      };
+      Object.keys(views).forEach(function (k) {
+        if (!views[k] || !navBtns[k]) return;
+        if (k === tabName) {
+          views[k].classList.remove('hidden');
+          navBtns[k].className = 'flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-blue-700 font-bold transition cursor-pointer';
+        } else {
+          views[k].classList.add('hidden');
+          navBtns[k].className = 'flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl text-slate-400 hover:text-slate-600 font-medium transition cursor-pointer';
+        }
+      });
+      if (tabName === 'satker') {
+        window.renderSatkerList();
+      }
+      if (tabName === 'table') {
+        var tableSchemaBox = document.getElementById('tableSchemaBox');
+        var isAdmin = currentUser && currentUser.role === 'admin';
+        if (tableSchemaBox) tableSchemaBox.classList.toggle('hidden', !isAdmin);
+        renderFullTable();
+      }
+    };
+
+    window.toggleScreenMode = function () {
+      isFullscreen = !isFullscreen;
+      var shell = document.getElementById('appShell');
+      var bottomNav = document.getElementById('bottomNav');
+      var allIcons = document.querySelectorAll('.screen-mode-icon');
+
+      if (isFullscreen) {
+        shell.classList.add('fullscreen-shell');
+        bottomNav.classList.remove('max-w-[460px]');
+        allIcons.forEach(function (el) { el.className = 'fa-solid fa-compress text-xs screen-mode-icon'; });
+      } else {
+        shell.classList.remove('fullscreen-shell');
+        bottomNav.classList.add('max-w-[460px]');
+        allIcons.forEach(function (el) { el.className = 'fa-solid fa-expand text-xs screen-mode-icon'; });
+      }
+    };
+
+    window.exportCSV = function () {
+      if (!dbHeaders.length) return;
+      var csvRows = [];
+      csvRows.push(dbHeaders.map(function (h) { return '"' + String(h).replace(/"/g, '""') + '"'; }).join(','));
+      dbRows.forEach(function (r) {
+        var vals = dbHeaders.map(function (h) { return '"' + String(r[h] || '').replace(/"/g, '""') + '"'; });
+        csvRows.push(vals.join(','));
+      });
+      var blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'Data_Pengguna_SAKTI.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('File CSV berhasil diunduh!');
+    };
+
+    function copyTextToClipboard(text) {
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(textarea);
+    }
+
+    var toastTimeout = null;
+    function showToast(msg, isError) {
+      var box = document.getElementById('toastBox');
+      var icon = document.getElementById('toastIcon');
+      var text = document.getElementById('toastMessage');
+      if (!box || !icon || !text) return;
+      text.textContent = msg;
+      icon.className = isError ? 'fa-solid fa-circle-exclamation text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
+      box.classList.remove('hidden');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(function () { box.classList.add('hidden'); }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
