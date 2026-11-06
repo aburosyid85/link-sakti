@@ -920,7 +920,7 @@
 
           saveToLocalCache();
           updateDatabaseUI('KPPN Luwuk • v1.2.1 build 051126');
-          if (showNotification) showToast('Tersinkronisasi dengan Supabase!');
+          if (showNotification) showToast('Tersinkronisasi dengan database!');
         }).catch(function (err) {
           if (refreshIcon) refreshIcon.classList.remove('fa-spin');
           showToast('Gagal memuat dari Supabase: ' + err.message, true);
